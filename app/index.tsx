@@ -1,5 +1,6 @@
 import { Text, View, StyleSheet, ScrollView } from "react-native";
 import { MaterialIcons } from '@expo/vector-icons';
+import * as Progress from 'react-native-progress';
 
 
 type HeaderProps = {
@@ -38,9 +39,21 @@ const InfoBox = ({ label, value, color }: InfoBoxProps) => (
 );
 
 const ProgressItem = () => (
-  <View>
-    <Text style={styles.mintext}>teste</Text>
-    <Text style={[styles.mintitle]}>teste</Text>
+  <View style={{gap: 8, marginBottom: 20}}>
+    <View>
+      <View style={[styles.row, styles.spacebetween]}>
+      <MaterialIcons name="local-grocery-store" size={30}/>
+      <Text>Supermercado</Text>
+      <Text>R$ 1.000</Text>
+      </View>
+    </View>
+    <View style={[styles.itemscenter, styles.row]}>
+      <Progress.Bar progress={0.2} width={null} height={18} style={{flex: 1}} color="#ff0" borderColor="#000"/>
+    </View>
+    <View style={[styles.row, styles.spacebetween]}>
+      <Text style={styles.mintext}>Restam: R$ 200</Text>
+      <Text style={[styles.mintext]}>80% utilizado</Text>
+    </View>
   </View>
 );
 
@@ -48,13 +61,13 @@ const ProgressItem = () => (
 
 export default function Index() {
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1}}>
       <ScrollView style={styles.container}>
         <Header month="Janeiro" />
         <View style={styles.content}>
           <View style={[styles.contentbox, styles.itemscenter]}>
             <Text style={styles.text}>Saldo total</Text>
-            <Text style={styles.title}>R$ 8.900,87</Text>
+            <Text style={styles.title}>R$ 8.908,87</Text>
             <View style={styles.row}>
               <InfoBox label="Receitas" value="R$ 4.500" color="green" />
               <InfoBox label="Despesas" value="R$ -4.500" color="red" />
@@ -63,13 +76,7 @@ export default function Index() {
         </View>
         <View style={styles.content}>
           <View style={styles.contentbox}>
-            <Text style={[styles.text, { textAlign: "center" }]}>Orçamento</Text>
-            <ProgressItem />
-            <ProgressItem />
-            <ProgressItem />
-            <ProgressItem />
-            <ProgressItem />
-            <ProgressItem />
+            <Text style={[styles.text, { textAlign: "center", marginBottom: 18 }]}>Orçamento</Text>
             <ProgressItem />
             <ProgressItem />
           </View>
@@ -91,6 +98,10 @@ const styles = StyleSheet.create({
 
   itemscenter: {
     alignItems: "center"
+  },
+
+  spacebetween: {
+    justifyContent: "space-between"
   },
 
   container: {
