@@ -1,4 +1,5 @@
-import { Text, View, StyleSheet, ScrollView } from "react-native";
+import { Text, View, StyleSheet, ScrollView, Pressable, Animated } from "react-native";
+import { useRef, useState } from "react";
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Progress from 'react-native-progress';
 
@@ -14,12 +15,9 @@ type InfoBoxProps = {
 };
 
 
-
 const Header = ({ month }: HeaderProps) => (
   <View style={[styles.header, styles.row, styles.itemscenter]}>
-    <Text style={{ textAlign: "center" }}>
-      <MaterialIcons name="person" size={30} color="#fff" />
-    </Text>
+    <MaterialIcons name="person" size={30} color="#fff" />
     <Text style={{ textAlign: "center", color: "#fff", fontSize: 24 }}>
       {month}
       <MaterialIcons name="arrow-drop-down" size={25} />
@@ -38,21 +36,42 @@ const InfoBox = ({ label, value, color }: InfoBoxProps) => (
   </View>
 );
 
+const getProgressColor = (progress: number) => {
+  if (progress < 0.5) return "#22c55e";   // verde: uso saudável
+  if (progress < 0.8) return "#eab308";   // amarelo: atenção
+  return "#ef4444";                       // vermelho: limite estourando
+};
+
+const progressValue = 0.9;
+
 const ProgressItem = () => (
-  <View style={{gap: 8, marginBottom: 20}}>
-    <View>
-      <View style={[styles.row, styles.spacebetween]}>
-      <MaterialIcons name="local-grocery-store" size={30}/>
+  <View style={{ gap: 8, marginBottom: 20 }}>
+    <View style={[styles.row, styles.spacebetween]}>
+      <MaterialIcons name="local-grocery-store" size={30} />
       <Text>Supermercado</Text>
       <Text>R$ 1.000</Text>
-      </View>
     </View>
+
     <View style={[styles.itemscenter, styles.row]}>
-      <Progress.Bar progress={0.2} width={null} height={18} style={{flex: 1}} color="#ff0" borderColor="#000"/>
+      <Progress.Bar
+        progress={progressValue}
+        width={null}
+        height={20}
+        borderRadius={20}
+        color={getProgressColor(progressValue)}
+        unfilledColor="#f0f1f3ff"   // fundo da barra (cinza claro)
+        borderWidth={1}
+        borderColor="#d1d5db"
+        animated
+        style={{
+          flex: 1,
+        }}
+      />
     </View>
+
     <View style={[styles.row, styles.spacebetween]}>
       <Text style={styles.mintext}>Restam: R$ 200</Text>
-      <Text style={[styles.mintext]}>80% utilizado</Text>
+      <Text style={styles.mintext}>80% utilizado</Text>
     </View>
   </View>
 );
@@ -60,8 +79,46 @@ const ProgressItem = () => (
 
 
 export default function Index() {
+
+  const [open, setOpen] = useState(false);
+  const animation = useRef(new Animated.Value(0)).current;
+  
+  const toggleFab = () => {
+    Animated.timing(animation, {
+      toValue: open ? 0 : 1,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+
+    setOpen(!open);
+  };
+
+
+  const receitaStyle = {
+    transform: [
+      { translateX: animation.interpolate({ inputRange: [0, 1], outputRange: [0, -60] }) },
+      { translateY: animation.interpolate({ inputRange: [0, 1], outputRange: [0, -60] }) },
+    ],
+    opacity: animation,
+  };
+
+  const transferenciaStyle = {
+    transform: [
+      { translateY: animation.interpolate({ inputRange: [0, 1], outputRange: [0, -85] }) },
+    ],
+    opacity: animation,
+  };
+
+  const despesaStyle = {
+    transform: [
+      { translateX: animation.interpolate({ inputRange: [0, 1], outputRange: [0, 60] }) },
+      { translateY: animation.interpolate({ inputRange: [0, 1], outputRange: [0, -60] }) },
+    ],
+    opacity: animation,
+  };
+
   return (
-    <View style={{ flex: 1}}>
+    <View style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
         <Header month="Janeiro" />
         <View style={styles.content}>
@@ -82,9 +139,32 @@ export default function Index() {
           </View>
         </View>
       </ScrollView>
-      <View style={[styles.itemscenter, styles.addbutton]}>
-        <MaterialIcons name="add" size={50} color={"#fff"} />
-      </View>
+
+      <Pressable
+        onPress={toggleFab}
+        style={({ pressed }) => [
+          styles.addbutton,
+          pressed && { opacity: 0.8, transform: [{ scale: 0.96 }] }
+        ]}
+      >
+        <MaterialIcons name="add" size={32} color="#fff" />
+      </Pressable>
+
+      <Animated.View style={[styles.fabMini, receitaStyle]}>
+        <Pressable onPress={() => console.log("Receita")}>
+          <MaterialIcons name="trending-up" size={22} color="#fff" />
+        </Pressable>
+      </Animated.View>
+      <Animated.View style={[styles.fabMini, transferenciaStyle]}>
+        <Pressable onPress={() => console.log("Transferência")}>
+          <MaterialIcons name="sync-alt" size={22} color="#fff" />
+        </Pressable>
+      </Animated.View>
+      <Animated.View style={[styles.fabMini, despesaStyle]}>
+        <Pressable onPress={() => console.log("Despesa")}>
+          <MaterialIcons name="trending-down" size={22} color="#fff" />
+        </Pressable>
+      </Animated.View>
     </View>
 
   );
@@ -161,14 +241,32 @@ const styles = StyleSheet.create({
 
   addbutton: {
     backgroundColor: "rgba(37, 97, 236, 1)",
-    width: 60,
-    height: 60,
+    width: 56,
+    height: 56,
     justifyContent: "center",
     alignItems: "center",
     bottom: "7%",
     alignSelf: "center",
     position: "absolute",
-    borderRadius: 70,
-    elevation: 4
-  }
+    borderRadius: 28,
+    elevation: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    shadowColor: "#000",
+    zIndex: 10
+  },
+
+  fabMini: {
+    position: "absolute",
+    alignSelf: "center",
+    bottom: 52,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#2561ec",
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 5,
+  },
 })
