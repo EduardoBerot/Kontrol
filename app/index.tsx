@@ -2,6 +2,9 @@ import { Text, View, StyleSheet, ScrollView, Pressable, Animated } from "react-n
 import { useRef, useState } from "react";
 import { MaterialIcons } from '@expo/vector-icons';
 import * as Progress from 'react-native-progress';
+import { DrawerActions } from "@react-navigation/native";
+import { useNavigation } from "expo-router";
+import { StatusBar } from 'expo-status-bar';
 
 
 type HeaderProps = {
@@ -13,21 +16,6 @@ type InfoBoxProps = {
   value: string;
   color?: string;
 };
-
-
-const Header = ({ month }: HeaderProps) => (
-  <View style={[styles.header, styles.row, styles.itemscenter]}>
-    <MaterialIcons name="person" size={30} color="#fff" />
-    <Text style={{ textAlign: "center", color: "#fff", fontSize: 24 }}>
-      {month}
-      <MaterialIcons name="arrow-drop-down" size={25} />
-    </Text>
-    <Text style={{ textAlign: "center" }}>
-      <MaterialIcons name="menu" size={30} color="#fff" />
-    </Text>
-  </View>
-);
-
 
 const InfoBox = ({ label, value, color }: InfoBoxProps) => (
   <View style={[styles.contentboxinfo, styles.itemscenter]}>
@@ -80,9 +68,28 @@ const ProgressItem = () => (
 
 export default function Index() {
 
+  const navigation = useNavigation();
+
+  const openDrawer = () => {
+    navigation.dispatch(DrawerActions.openDrawer());
+  };
+
   const [open, setOpen] = useState(false);
   const animation = useRef(new Animated.Value(0)).current;
-  
+
+  const Header = ({ month }: HeaderProps) => (
+    <View style={[styles.header, styles.row, styles.itemscenter]}>
+      <MaterialIcons name="person" size={30} color="#fff" />
+      <Text style={{ textAlign: "center", color: "#fff", fontSize: 24 }}>
+        {month}
+        <MaterialIcons name="arrow-drop-down" size={25} />
+      </Text>
+      <Text style={{ textAlign: "center" }}>
+        <MaterialIcons onPress={openDrawer} name="menu" size={30} color="#fff" />
+      </Text>
+    </View>
+  );
+
   const toggleFab = () => {
     Animated.timing(animation, {
       toValue: open ? 0 : 1,
@@ -114,11 +121,16 @@ export default function Index() {
       { translateX: animation.interpolate({ inputRange: [0, 1], outputRange: [0, 60] }) },
       { translateY: animation.interpolate({ inputRange: [0, 1], outputRange: [0, -60] }) },
     ],
-    opacity: animation,
+    opacity: animation
   };
 
   return (
     <View style={{ flex: 1 }}>
+      <StatusBar
+        translucent
+        backgroundColor="transparent"
+        style="light"
+      />
       <ScrollView style={styles.container}>
         <Header month="Janeiro" />
         <View style={styles.content}>
@@ -150,17 +162,17 @@ export default function Index() {
         <MaterialIcons name="add" size={32} color="#fff" />
       </Pressable>
 
-      <Animated.View style={[styles.fabMini, receitaStyle]}>
+      <Animated.View style={[styles.fabMini, receitaStyle, { backgroundColor: "#22c55e" }]}>
         <Pressable onPress={() => console.log("Receita")}>
           <MaterialIcons name="trending-up" size={22} color="#fff" />
         </Pressable>
       </Animated.View>
-      <Animated.View style={[styles.fabMini, transferenciaStyle]}>
+      <Animated.View style={[styles.fabMini, transferenciaStyle, { backgroundColor: "#8b5cf6" }]}>
         <Pressable onPress={() => console.log("Transferência")}>
           <MaterialIcons name="sync-alt" size={22} color="#fff" />
         </Pressable>
       </Animated.View>
-      <Animated.View style={[styles.fabMini, despesaStyle]}>
+      <Animated.View style={[styles.fabMini, despesaStyle, { backgroundColor: "#ef4444" }]}>
         <Pressable onPress={() => console.log("Despesa")}>
           <MaterialIcons name="trending-down" size={22} color="#fff" />
         </Pressable>
@@ -264,7 +276,6 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#2561ec",
     justifyContent: "center",
     alignItems: "center",
     elevation: 5,
