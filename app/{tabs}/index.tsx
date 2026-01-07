@@ -1,11 +1,11 @@
-import { Text, View, StyleSheet, ScrollView, Pressable, Animated } from "react-native";
-import { useRef, useState } from "react";
 import { MaterialIcons } from '@expo/vector-icons';
+import { useRef, useState } from "react";
+import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { StatusBar } from 'expo-status-bar';
 
 
-import Header from "../components/Header";
+import Header from "../components/Header/Header";
 import InfoBox from "../components/InfoBox";
 import ProgressItem from "../components/ProgressItem";
 import { globalStyles } from "../styles/global";
@@ -74,8 +74,8 @@ export default function Index() {
         backgroundColor="transparent"
         style="light"
       />
-      <ScrollView style={styles.container}>
-        <Header />
+      <ScrollView style={globalStyles.container}>
+        <Header showIndexContent={true} showTabsContent={false} TabTittle='Inicio'/>
         <View style={styles.content}>
           <View style={[styles.contentbox, globalStyles.itemscenter]}>
             <Text style={globalStyles.text}>Saldo total</Text>
@@ -131,11 +131,6 @@ export default function Index() {
 
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#efefefff",
-  },
-
   content: {
     justifyContent: "center",
     top: -30,

@@ -1,24 +1,18 @@
 import { Text, View, StyleSheet } from "react-native";
+import { globalStyles } from "../styles/global";
+import Header from "../components/Header/Header";
 
 export default function Form() {
   return (
     <View
-      style={styles.container}
+      style={globalStyles.container}
     >
-      <Text style={styles.text}>Cadastre abaixo</Text>
+      <Header showIndexContent={false} showTabsContent={true} TabTittle="Editar Categorias"/>
+      <Text style={globalStyles.text}>Cadastre abaixo</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create ({
-  container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#25292e"
-  },
-  
-  text: {
-    color: "#fff"
-  }
+
 })
