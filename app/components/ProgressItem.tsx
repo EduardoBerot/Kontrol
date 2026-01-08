@@ -5,7 +5,7 @@ import * as Progress from 'react-native-progress';
 
 
 type ProgressItemProps = {
-    icon: keyof typeof MaterialIcons.glyphMap;
+    icon: any;
     label: string;
     spent: number;
     limit: number;

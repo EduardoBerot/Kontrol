@@ -28,7 +28,7 @@ export default function RootLayout() {
           }}
         />
         <Drawer.Screen
-          name="form"
+          name="editcategories"
           options={{
             title: "Editar Categorias",
             drawerIcon: ({ color, size }) => (

@@ -9,14 +9,7 @@ import Header from "../components/Header/Header";
 import InfoBox from "../components/InfoBox";
 import ProgressItem from "../components/ProgressItem";
 import { globalStyles } from "../styles/global";
-
-
-
-
-
-
-
-
+import { Categories } from '../utils/Categories';
 
 
 
@@ -88,12 +81,14 @@ export default function Index() {
         <View style={globalStyles.indexcontent}>
           <View style={globalStyles.contentbox}>
             <Text style={[globalStyles.text, { textAlign: "center", marginBottom: 18 }]}>Orçamento</Text>
-            <ProgressItem
-              icon="local-grocery-store"
-              label="Supermercado"
-              spent={700}
-              limit={1000}
-            />
+            {Categories.map(item => (
+              <ProgressItem
+                icon={item.icon}
+                label={item.title}
+                limit={1000}
+                spent={200}
+              />
+            ))}
           </View>
         </View>
       </ScrollView>
