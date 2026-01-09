@@ -83,6 +83,7 @@ export default function Index() {
             <Text style={[globalStyles.text, { textAlign: "center", marginBottom: 18 }]}>Orçamento</Text>
             {Categories.map(item => (
               <ProgressItem
+                key={item.id}
                 icon={item.icon}
                 label={item.title}
                 limit={1000}
