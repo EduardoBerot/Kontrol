@@ -2,6 +2,7 @@ import { Modal, View, Pressable, FlatList, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Icons, IconName } from "@/app/utils/Icons";
 
+// Tipagem
 type Props = {
   visible: boolean;
   color: string;
@@ -10,6 +11,7 @@ type Props = {
 };
 
 export function IconPickerModal({ visible, color, onClose, onSelect }: Props) {
+
   return (
     <Modal
       visible={visible}
@@ -17,11 +19,11 @@ export function IconPickerModal({ visible, color, onClose, onSelect }: Props) {
       animationType="fade"
       onRequestClose={onClose}
     >
-      {/* Overlay clicável */}
+
       <Pressable style={styles.overlay} onPress={onClose}>
-        {/* Container NÃO fecha ao clicar dentro */}
+
         <Pressable style={styles.container} onPress={() => {}}>
-          {/* Botão X */}
+
           <Pressable style={styles.closeButton} onPress={onClose}>
             <MaterialIcons name="close" size={24} />
           </Pressable>
@@ -42,6 +44,7 @@ export function IconPickerModal({ visible, color, onClose, onSelect }: Props) {
               </Pressable>
             )}
           />
+          
         </Pressable>
       </Pressable>
     </Modal>

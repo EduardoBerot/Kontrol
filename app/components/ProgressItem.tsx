@@ -3,29 +3,28 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { globalStyles } from "../styles/global";
 import * as Progress from 'react-native-progress';
 
-
+// Tipagem
 type ProgressItemProps = {
     icon: any;
     label: string;
     spent: number;
     limit: number;
 };
+
+// Coloração condicional
 const progressValue = 0.9;
 
 const getProgressColor = (progress: number) => {
-    if (progress < 0.5) return "#22c55e";   // verde: uso saudável
-    if (progress < 0.8) return "#eab308";   // amarelo: atenção
-    return "#ef4444";                       // vermelho: limite estourando
+    if (progress < 0.5) return "#22c55e"; 
+    if (progress < 0.8) return "#eab308"; 
+    return "#ef4444";     
 };
 
 
 export default function ProgressItem ({icon, label, spent, limit}: ProgressItemProps) {
-
-
-
-
     return (
         <View style={{ gap: 8, marginBottom: 20 }}>
+
             <View style={[globalStyles.row, globalStyles.spacebetween]}>
                 <MaterialIcons name={icon} size={30} />
                 <Text>{label}</Text>
@@ -53,6 +52,7 @@ export default function ProgressItem ({icon, label, spent, limit}: ProgressItemP
                 <Text style={globalStyles.mintext}>Restam: {limit - spent}</Text>
                 <Text style={globalStyles.mintext}>80% utilizado</Text>
             </View>
+            
         </View>
     )
 }

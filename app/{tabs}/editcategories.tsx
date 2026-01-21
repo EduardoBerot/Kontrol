@@ -1,25 +1,64 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
+import { useState} from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { CategoryAddModal } from "../components/CategoryAddModal/CategoryAddModal";
 import { CategoryRender } from "../components/CategoryRender";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Header from "../components/Header/Header";
 import { globalStyles } from "../styles/global";
-import { Categories } from "../utils/Categories";
 
 
-export default function Form() {
+export default function editcategories() {
+
+  // Tipagem (falta ajustar)
+  type Category = {
+    id: any;
+    name: any;
+    icon: any;
+    color: any;
+    limit: any;
+    spent: any;
+  };
 
 
+  // Hooks
   const [modalVisible, setmodalVisible] = useState(false)
+  const [categories, setCategories] = useState<Category[]>([]);
+
+ //Lê dados do Async Storage
+  const readData = async () => {
+    try {
+      const value = await AsyncStorage.getItem('categories');
+      if (value !== null) {
+        const parsed: Category[] = JSON.parse(value);
+        setCategories(parsed);
+      }
+    } catch {
+      console.log("Problemas ao ler os dados")
+    }
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      readData();
+    }, [])
+  );
+
 
   return (
     <View
       style={globalStyles.container}
     >
+
       <Header showIndexContent={false} showTabsContent={true} TabTittle="Editar Categorias" />
+
+
       <View style={globalStyles.content}>
         <View style={[globalStyles.contentbox, { marginTop: 20 }]}>
+
+
           <View style={[globalStyles.row, globalStyles.spacebetween, globalStyles.itemscenter, { marginBottom: 20 }]}>
             <Text style={globalStyles.mintitle}>Categorias</Text>
             <Pressable
@@ -31,17 +70,31 @@ export default function Form() {
               <MaterialIcons name="add" size={16} />
             </Pressable>
           </View>
-          {Categories.map(item => (
+
+          {categories.map(item => (
             <CategoryRender
               key={item.id}
-              title={item.title}
+              title={item.name}
               icon={item.icon}
-              onEdit={() => console.log("Editar", item.title)}
+              color={item.color}
+              onEdit={() => console.log("Editar", item.name)}
             />
           ))}
+
+
         </View>
       </View>
-      <CategoryAddModal visible={modalVisible} onClose={() => setmodalVisible(false)}/>
+
+
+      <CategoryAddModal
+        visible={modalVisible}
+        onClose={() => setmodalVisible(false)}
+        onSaved={() => {
+          readData(); 
+          setmodalVisible(false);
+        }}
+      />
+
     </View>
   );
 }

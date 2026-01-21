@@ -2,19 +2,20 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { globalStyles } from "../styles/global";
 
-
+// Tipagem
 type CategoryRenderProps = {
     title: string;
     icon: any;
+    color: any;
     onEdit?: () => void;
 };
 
 
 
-export function CategoryRender({ title, icon, onEdit }: CategoryRenderProps) {
+export function CategoryRender({ title, icon, color, onEdit }: CategoryRenderProps) {
     return (
         <View style={styles.categoryitem}>
-            <MaterialIcons name={icon} size={22} />
+            <MaterialIcons name={icon} size={22} color={color} />
             <Text style={globalStyles.text}>{title}</Text>
 
             <TouchableOpacity

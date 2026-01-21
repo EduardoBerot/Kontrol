@@ -9,28 +9,82 @@ import {
 } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
 import { MaterialIcons } from "@expo/vector-icons";
-
-import { globalStyles } from "../../styles/global";
 import { IconSelectInput } from "./IconSelectInput";
 import { IconPickerModal } from "./IconPickerModal";
 import { ColorSelectInput } from "./ColorSelectInput";
 import { ColorPickerModal } from "./ColorPickerModal";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { IconName } from "@/app/utils/Icons";
+
+// Tipagem (falta ajustar)
+type Category = {
+  id: any;
+  name: any;
+  icon: any;
+  color: any;
+  limit: any;
+  spent: any;
+};
 
 type ModalProps = {
   visible: boolean;
   onClose: () => void;
+  onSaved: () => void;
 };
 
-export function CategoryAddModal({ visible, onClose }: ModalProps) {
+
+export function CategoryAddModal({ visible, onClose, onSaved }: ModalProps) {
+
+  // Hooks
+  const [name, setName] = useState<string>();
+  const [budget, setBudget] = useState<string>();
   const [icon, setIcon] = useState<IconName>();
   const [iconModalOpen, setIconModalOpen] = useState(false);
-
   const [color, setColor] = useState<string>();
   const [colorModalOpen, setColorModalOpen] = useState(false);
-
   const translateY = useRef(new Animated.Value(300)).current;
 
+
+  // Salvar categoria no Async Storage
+  const saveData = async (data: Category[]) => {
+    try {
+      await AsyncStorage.setItem('categories', JSON.stringify(data))
+    } catch {
+      console.log("Não foi possivel salvar a informação no banco de dados!")
+    }
+  }
+
+  // Adiciona categoria no asyncstorage
+  const addData = async () => {
+    try {
+      const value = await AsyncStorage.getItem('categories');
+      const current: Category[] = value ? JSON.parse(value) : [];
+      const newCategory = {
+        id: Date.now(),
+        name,
+        icon,
+        color,
+        limit: budget,
+        spent: "",
+      };
+      const updated = [...current, newCategory];
+      await AsyncStorage.setItem('categories', JSON.stringify(updated));
+
+      // Reseta hooks
+      setIcon(undefined);
+      setColor("#9CA3AF");
+      setName('');
+      setBudget('');
+
+      //Força atualização
+      onSaved();
+
+    } catch (e) {
+      console.log("Erro ao salvar categoria", e);
+    }
+  };
+
+  // Abrir modal
   useEffect(() => {
     Animated.timing(translateY, {
       toValue: visible ? 0 : 300,
@@ -39,38 +93,42 @@ export function CategoryAddModal({ visible, onClose }: ModalProps) {
     }).start();
   }, [visible]);
 
+
   return (
     <Modal transparent visible={visible} onRequestClose={onClose}>
-      {/* Overlay */}
+
       <Pressable style={styles.overlay} onPress={onClose}>
-        {/* Bloqueia clique interno */}
+
         <Pressable>
+
           <Animated.View
             style={[
               styles.modal,
               { transform: [{ translateY }] },
             ]}
           >
-            {/* Header */}
+
             <View style={styles.header}>
               <Text style={styles.title}>Adicionar categoria</Text>
-
               <Pressable onPress={onClose} hitSlop={8}>
                 <MaterialIcons name="close" size={22} />
               </Pressable>
             </View>
 
-            {/* Campo nome */}
+
             <View style={styles.field}>
               <Text style={styles.label}>Nome</Text>
               <TextInput
+                value={name}
+                onChangeText={setName}
                 placeholder="Ex: Alimentação"
                 style={styles.input}
               />
             </View>
+
+
             <View style={styles.field}>
               <Text style={styles.label}>Ícone</Text>
-
               <IconSelectInput
                 value={icon}
                 color={color ?? "#9CA3AF"}
@@ -83,9 +141,10 @@ export function CategoryAddModal({ visible, onClose }: ModalProps) {
                 onSelect={setIcon}
               />
             </View>
+
+
             <View style={styles.field}>
               <Text style={styles.label}>Cor</Text>
-
               <ColorSelectInput
                 value={color}
                 onPress={() => setColorModalOpen(true)}
@@ -97,15 +156,31 @@ export function CategoryAddModal({ visible, onClose }: ModalProps) {
                 onSelect={setColor}
               />
             </View>
-            <Pressable style={styles.button}>
-              <Text style={styles.buttonText}>Salvar categoria</Text>
+
+            <View style={styles.field}>
+              <Text style={styles.label}>Orçamento</Text>
+              <TextInput
+                value={budget}
+                onChangeText={setBudget}
+                placeholder="Ex: 1.000 R$"
+                style={styles.input}
+              />
+            </View>
+
+            <Pressable style={styles.button} onPress={addData}>
+              <Text style={styles.buttonText}>
+                Salvar categoria
+              </Text>
             </Pressable>
+            
           </Animated.View>
         </Pressable>
       </Pressable>
     </Modal>
   );
 }
+
+
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,

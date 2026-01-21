@@ -1,6 +1,7 @@
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { Text, Pressable, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
+// Tipagem
 type Props = {
     value?: string;
     color: string;

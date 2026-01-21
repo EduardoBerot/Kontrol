@@ -1,7 +1,7 @@
 import { Text, View, StyleSheet } from "react-native";
 import { globalStyles } from "../styles/global";
 
-
+// Tipagem
 type InfoBoxProps = {
     label: string;
     value: string;

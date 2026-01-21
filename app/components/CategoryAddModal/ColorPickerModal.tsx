@@ -12,6 +12,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import ColorPicker from "react-native-wheel-color-picker";
 import { globalStyles } from "@/app/styles/global";
 
+// Tipagem
 type Props = {
   visible: boolean;
   initialColor?: string;
@@ -25,10 +26,13 @@ export function ColorPickerModal({
   onClose,
   onSelect,
 }: Props) {
-  const [color, setColor] = useState(initialColor);
 
+  // Hooks
+  const [color, setColor] = useState(initialColor);
   const translateY = useRef(new Animated.Value(320)).current;
 
+
+  // Functions
   useEffect(() => {
     setColor(initialColor);
   }, [initialColor, visible]);
@@ -46,6 +50,7 @@ export function ColorPickerModal({
     }
   }, [visible]);
 
+  // Abrir modal
   function handleClose() {
     Animated.timing(translateY, {
       toValue: 320,
@@ -63,7 +68,7 @@ export function ColorPickerModal({
       onRequestClose={handleClose}
     >
       <View style={styles.overlay}>
-        {/* Backdrop */}
+
         <Pressable
           style={StyleSheet.absoluteFill}
           onPress={handleClose}
@@ -91,6 +96,7 @@ export function ColorPickerModal({
               row={false}
             />
           </View>
+
           <Pressable
             style={[
               styles.confirmButton,
@@ -105,11 +111,13 @@ export function ColorPickerModal({
               Confirmar cor
             </Text>
           </Pressable>
+
         </Animated.View>
       </View>
     </Modal>
   );
 }
+
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,

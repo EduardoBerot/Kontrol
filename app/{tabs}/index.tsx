@@ -17,24 +17,21 @@ import { Categories } from '../utils/Categories';
 
 export default function Index() {
 
+  // Hooks
   const [open, setOpen] = useState(false);
   const animation = useRef(new Animated.Value(0)).current;
 
-  // const Header = ({ month }: HeaderProps) => (
-
-  // );
-
+  // Abrir FABs
   const toggleFab = () => {
     Animated.timing(animation, {
       toValue: open ? 0 : 1,
       duration: 200,
       useNativeDriver: true,
     }).start();
-
     setOpen(!open);
   };
 
-
+  // Funções de animações
   const receitaStyle = {
     transform: [
       { translateX: animation.interpolate({ inputRange: [0, 1], outputRange: [0, -60] }) },
@@ -58,6 +55,8 @@ export default function Index() {
     opacity: animation
   };
 
+
+
   return (
     <View style={{ flex: 1 }}>
       <StatusBar
@@ -67,7 +66,9 @@ export default function Index() {
       />
 
       <ScrollView style={[globalStyles.container]}>
+
         <Header showIndexContent={true} showTabsContent={false} TabTittle='Inicio' />
+
         <View style={globalStyles.indexcontent}>
           <View style={[globalStyles.contentbox, globalStyles.itemscenter]}>
             <Text style={globalStyles.text}>Saldo total</Text>
@@ -78,6 +79,7 @@ export default function Index() {
             </View>
           </View>
         </View>
+
         <View style={globalStyles.indexcontent}>
           <View style={globalStyles.contentbox}>
             <Text style={[globalStyles.text, { textAlign: "center", marginBottom: 18 }]}>Orçamento</Text>
@@ -92,6 +94,7 @@ export default function Index() {
             ))}
           </View>
         </View>
+
       </ScrollView>
 
       <Pressable
@@ -109,16 +112,19 @@ export default function Index() {
           <MaterialIcons name="trending-up" size={22} color="#fff" />
         </Pressable>
       </Animated.View>
+
       <Animated.View style={[styles.fabMini, transferenciaStyle, { backgroundColor: "#8b5cf6" }]}>
         <Pressable onPress={() => console.log("Transferência")}>
           <MaterialIcons name="sync-alt" size={22} color="#fff" />
         </Pressable>
       </Animated.View>
+
       <Animated.View style={[styles.fabMini, despesaStyle, { backgroundColor: "#ef4444" }]}>
         <Pressable onPress={() => console.log("Despesa")}>
           <MaterialIcons name="trending-down" size={22} color="#fff" />
         </Pressable>
       </Animated.View>
+      
     </View>
   );
 }

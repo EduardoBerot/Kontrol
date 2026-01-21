@@ -1,12 +1,12 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { DrawerActions } from "@react-navigation/native";
 import { useNavigation } from "expo-router";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { globalStyles } from "../../styles/global";
-
 import HeaderIndexContent from './components/HeaderIndexContent';
 import HeaderTabsContent from './components/HeaderTabsContent';
 
+//Tipagem
 type HeaderProps = {
     showIndexContent: boolean;
     showTabsContent: boolean;
@@ -19,8 +19,11 @@ export default function Header({
     showTabsContent = false,
     TabTittle
 }: HeaderProps) {
+
+    // Hooks
     const navigation = useNavigation();
 
+    // Abrir menu lateral
     const openDrawer = () => {
         navigation.dispatch(DrawerActions.openDrawer());
     };

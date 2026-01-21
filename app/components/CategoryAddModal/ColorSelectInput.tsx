@@ -1,6 +1,7 @@
 import { Pressable, View, Text, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
+// Tipagem
 type Props = {
   value?: string;
   onPress: () => void;
@@ -8,7 +9,9 @@ type Props = {
 
 export function ColorSelectInput({ value, onPress }: Props) {
   return (
+
     <Pressable style={styles.input} onPress={onPress}>
+
       <View style={styles.left}>
         <View
           style={[
@@ -20,7 +23,9 @@ export function ColorSelectInput({ value, onPress }: Props) {
       </View>
 
       <MaterialIcons name="color-lens" size={22} />
+      
     </Pressable>
+
   );
 }
 
