@@ -2,6 +2,7 @@ import { Text, View } from "react-native";
 import { MaterialIcons } from '@expo/vector-icons';
 import { globalStyles } from "../styles/global";
 import * as Progress from 'react-native-progress';
+import { useState } from "react";
 
 // Tipagem
 type ProgressItemProps = {
@@ -9,6 +10,7 @@ type ProgressItemProps = {
     label: string;
     spent: number;
     limit: number;
+    color: string;
 };
 
 // Coloração condicional
@@ -21,23 +23,30 @@ const getProgressColor = (progress: number) => {
 };
 
 
-export default function ProgressItem ({icon, label, spent, limit}: ProgressItemProps) {
+export default function ProgressItem ({icon, label, spent, limit, color}: ProgressItemProps) {
+
+    const [categorieValue, setCategorieValue] = useState(0)
+
+    const remainingValue = limit - spent
+    const percentSpent = limit > 0 ? (spent / limit) * 100 : 0;
+
+
     return (
         <View style={{ gap: 8, marginBottom: 20 }}>
 
             <View style={[globalStyles.row, globalStyles.spacebetween]}>
-                <MaterialIcons name={icon} size={30} />
+                <MaterialIcons name={icon} size={30} color={color}/>
                 <Text>{label}</Text>
                 <Text>{limit}</Text>
             </View>
 
             <View style={[globalStyles.itemscenter, globalStyles.row]}>
                 <Progress.Bar
-                    progress={progressValue}
+                    progress={categorieValue}
                     width={null}
                     height={20}
                     borderRadius={20}
-                    color={getProgressColor(progressValue)}
+                    color={getProgressColor(categorieValue)}
                     unfilledColor="#f0f1f3ff"   // fundo da barra (cinza claro)
                     borderWidth={1}
                     borderColor="#d1d5db"
@@ -49,8 +58,8 @@ export default function ProgressItem ({icon, label, spent, limit}: ProgressItemP
             </View>
 
             <View style={[globalStyles.row, globalStyles.spacebetween]}>
-                <Text style={globalStyles.mintext}>Restam: {limit - spent}</Text>
-                <Text style={globalStyles.mintext}>80% utilizado</Text>
+                <Text style={globalStyles.mintext}>Restam: {remainingValue}</Text>
+                <Text style={globalStyles.mintext}>{percentSpent}% Utilizado</Text>
             </View>
             
         </View>

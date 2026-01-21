@@ -1,17 +1,24 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRef, useState } from "react";
+import { useRef, useState, useCallback } from "react";
+import { useFocusEffect } from 'expo-router';
 import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-
 import { StatusBar } from 'expo-status-bar';
-
-
 import Header from "../components/Header/Header";
 import InfoBox from "../components/InfoBox";
 import ProgressItem from "../components/ProgressItem";
 import { globalStyles } from "../styles/global";
 import { Categories } from '../utils/Categories';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
+type Category = {
+  id: any;
+  name: any;
+  icon: any;
+  color: any;
+  limit: any;
+  spent: any;
+};
 
 
 
@@ -20,6 +27,27 @@ export default function Index() {
   // Hooks
   const [open, setOpen] = useState(false);
   const animation = useRef(new Animated.Value(0)).current;
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  //Lê dados do Async Storage
+  const readData = async () => {
+    try {
+      const value = await AsyncStorage.getItem('categories');
+      if (value !== null) {
+        const parsed: Category[] = JSON.parse(value);
+        setCategories(parsed);
+      }
+    } catch {
+      console.log("Problemas ao ler os dados")
+    }
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      readData();
+    }, [])
+  );
+
 
   // Abrir FABs
   const toggleFab = () => {
@@ -83,13 +111,14 @@ export default function Index() {
         <View style={globalStyles.indexcontent}>
           <View style={globalStyles.contentbox}>
             <Text style={[globalStyles.text, { textAlign: "center", marginBottom: 18 }]}>Orçamento</Text>
-            {Categories.map(item => (
+            {categories.map(item => (
               <ProgressItem
                 key={item.id}
                 icon={item.icon}
-                label={item.title}
-                limit={1000}
-                spent={200}
+                color={item.color}
+                label={item.name}
+                limit={item.limit}
+                spent={item.spent}
               />
             ))}
           </View>
@@ -124,7 +153,7 @@ export default function Index() {
           <MaterialIcons name="trending-down" size={22} color="#fff" />
         </Pressable>
       </Animated.View>
-      
+
     </View>
   );
 }
