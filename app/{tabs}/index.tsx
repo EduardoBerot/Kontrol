@@ -6,8 +6,8 @@ import { StatusBar } from 'expo-status-bar';
 import Header from "../components/Header/Header";
 import InfoBox from "../components/InfoBox";
 import ProgressItem from "../components/ProgressItem";
+import TransactionModal from "../components/TransactionModal"
 import { globalStyles } from "../styles/global";
-import { Categories } from '../utils/Categories';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
@@ -28,6 +28,9 @@ const Index = () => {
   const [open, setOpen] = useState(false);
   const animation = useRef(new Animated.Value(0)).current;
   const [categories, setCategories] = useState<Category[]>([]);
+  const [modalVisible, setmodalVisible] = useState(false);
+  const [transactionType, setTransactionType] = useState<"despesa" | "receita" | "transferencia" | null>(null);
+
 
   //Lê dados do Async Storage
   const readData = async () => {
@@ -139,24 +142,44 @@ const Index = () => {
       </Pressable>
 
       <Animated.View style={[styles.fabMini, receitaStyle, { backgroundColor: "#22c55e" }]}>
-        <Pressable onPress={() => console.log("Receita")}>
+        <Pressable onPress={() => {
+          setTransactionType('receita');
+          setmodalVisible(true);
+        }}>
           <MaterialIcons name="trending-up" size={22} color="#fff" />
         </Pressable>
       </Animated.View>
 
       <Animated.View style={[styles.fabMini, transferenciaStyle, { backgroundColor: "#8b5cf6" }]}>
-        <Pressable onPress={() => console.log("Transferência")}>
+        <Pressable onPress={() => {
+          setTransactionType('transferencia');
+          setmodalVisible(true);
+        }}>
           <MaterialIcons name="sync-alt" size={22} color="#fff" />
         </Pressable>
       </Animated.View>
 
       <Animated.View style={[styles.fabMini, despesaStyle, { backgroundColor: "#ef4444" }]}>
-        <Pressable onPress={() => console.log("Despesa")}>
+        <Pressable
+          onPress={() => {
+            setTransactionType('despesa');
+            setmodalVisible(true);
+          }
+          }>
           <MaterialIcons name="trending-down" size={22} color="#fff" />
         </Pressable>
       </Animated.View>
 
+      <TransactionModal
+        visible={modalVisible}
+        onClose={() => {
+          setmodalVisible(false)
+        }}
+        type={transactionType}
+      />
+
     </View>
+
   );
 }
 

@@ -24,7 +24,7 @@ const editcategories = () => {
 
 
   // Hooks
-  const [modalVisible, setmodalVisible] = useState(false)
+  const [modalVisible, setmodalVisible] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [editCategory, setEditCategory] = useState<Category | null>(null);
 
