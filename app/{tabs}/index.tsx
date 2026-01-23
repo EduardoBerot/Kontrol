@@ -6,7 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import Header from "../components/Header/Header";
 import InfoBox from "../components/InfoBox";
 import ProgressItem from "../components/ProgressItem";
-import TransactionModal from "../components/TransactionModal"
+import TransactionModal from "../components/TransactionModal/TransactionModal"
 import { globalStyles } from "../styles/global";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -61,6 +61,17 @@ const Index = () => {
     }).start();
     setOpen(!open);
   };
+
+  // Fechar FABs  
+  const closeFab = () => {
+    Animated.timing(animation, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+    setOpen(false);
+  };
+
 
   // Funções de animações
   const receitaStyle = {
@@ -141,6 +152,14 @@ const Index = () => {
         <MaterialIcons name="add" size={32} color="#fff" />
       </Pressable>
 
+      {open && (
+        <Pressable
+          style={styles.fabBackdrop}
+          onPress={closeFab}
+        />
+      )}
+
+
       <Animated.View style={[styles.fabMini, receitaStyle, { backgroundColor: "#22c55e" }]}>
         <Pressable onPress={() => {
           setTransactionType('receita');
@@ -203,8 +222,19 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
     shadowColor: "#000",
-    zIndex: 10
+    zIndex: 15
   },
+
+  fabBackdrop: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "transparent",
+    zIndex: 5,
+  },
+
 
   fabMini: {
     position: "absolute",
@@ -216,5 +246,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     elevation: 5,
+    zIndex: 10,   // importante
   },
+
 })

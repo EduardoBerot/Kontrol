@@ -9,12 +9,12 @@ import {
 } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
 import { MaterialIcons } from "@expo/vector-icons";
-import { IconName } from "@/app/utils/Icons";
+import CategorySelectInput from "./CategorySelectInput";
+import CategorySelectModal from "./CategorySelectModal";
+import { Category } from "./CategorySelectModal";
 
 
 // Tipagem
-
-
 type ModalProps = {
   visible: boolean;
   type: "despesa" | "receita" | "transferencia" | null;
@@ -23,23 +23,22 @@ type ModalProps = {
 
 
 
-const TransactionModal = ({ visible, onClose, type}: ModalProps) => {
+const TransactionModal = ({ visible, onClose, type }: ModalProps) => {
 
   // Hooks
-  const [name, setName] = useState("");
-  const [budget, setBudget] = useState("");
+  const [category, setCategory] = useState<Category | undefined>();
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const translateY = useRef(new Animated.Value(300)).current;
 
 
   // Constantes de renderizações condicionais
-
   const buttonLabel = {
     despesa: "Salvar Despesa",
     receita: "Salvar Receita",
     transferencia: "Salvar Transferência"
   }
 
-    const modalTitle = {
+  const modalTitle = {
     despesa: "Adicionar despesa",
     receita: "Adicionar receita",
     transferencia: "Adicionar transferência"
@@ -55,6 +54,15 @@ const TransactionModal = ({ visible, onClose, type}: ModalProps) => {
       duration: visible ? 280 : 0,
       useNativeDriver: true,
     }).start();
+  }, [visible]);
+
+
+  useEffect(() => {
+    if (!visible) {
+      // quando o modal principal FECHAR
+      setCategory(undefined);
+      setCategoryModalOpen(false);
+    }
   }, [visible]);
 
 
@@ -81,18 +89,40 @@ const TransactionModal = ({ visible, onClose, type}: ModalProps) => {
             <View style={styles.field}>
               <Text style={styles.label}>Data</Text>
               <TextInput
-                value={name}
-                onChangeText={setName}
                 placeholder="Ex: Alimentação"
                 style={styles.input}
               />
             </View>
 
+            {(type === "despesa" || type === "receita") && (
+              <View style={styles.field}>
+                <Text style={styles.label}>Categoria</Text>
+
+                <CategorySelectInput
+                  type={type}
+                  category={category}
+                  onPress={() => setCategoryModalOpen(true)}
+                />
+
+                <CategorySelectModal
+                  visible={categoryModalOpen}
+                  type={type}
+                  onClose={() => {
+                    setCategoryModalOpen(false);
+                  }}
+                  onSelect={setCategory}
+                />
+              </View>
+            )}
+
+
+            
+
+
+
             <View style={styles.field}>
               <Text style={styles.label}>Valor</Text>
               <TextInput
-                value={budget}
-                onChangeText={setBudget}
                 placeholder="Ex: 1.000 R$"
                 style={styles.input}
               />
@@ -100,7 +130,7 @@ const TransactionModal = ({ visible, onClose, type}: ModalProps) => {
 
             <Pressable style={styles.button} >
               <Text style={styles.buttonText}>
-                { type ? buttonLabel[type] : ""}
+                {type ? buttonLabel[type] : ""}
               </Text>
             </Pressable>
 

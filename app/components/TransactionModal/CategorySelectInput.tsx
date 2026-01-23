@@ -1,0 +1,75 @@
+import { Text, Pressable, StyleSheet, View } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+import { Category } from "./CategorySelectModal";
+
+type Props = {
+  type: "despesa" | "receita" | null;
+  category?: Category;
+  onPress: () => void;
+};
+
+  const inputLabel = {
+    despesa: "Selecione a Categoria",
+    receita: "Selecione a Natureza da Receita",
+  }
+
+const CategorySelectInput = ({ type, category, onPress }: Props) => {
+  return (
+    <Pressable style={styles.input} onPress={onPress}>
+      {/* Se já tem categoria selecionada */}
+      {category ? (
+        <View style={styles.left}>
+          <MaterialIcons
+            name={category.icon}
+            size={22}
+            color={category.color}
+          />
+          <Text style={styles.text}>{category.name}</Text>
+        </View>
+      ) : (
+        <View style={styles.left}>
+          <MaterialIcons name="category" size={22} color="#9CA3AF" />
+          <Text style={styles.placeholder}>
+            {type ? inputLabel[type] : ""}
+          </Text>
+        </View>
+      )}
+
+      <MaterialIcons name="keyboard-arrow-down" size={24} color="#6B7280" />
+    </Pressable>
+  );
+};
+
+export default CategorySelectInput;
+
+const styles = StyleSheet.create({
+  input: {
+    height: 48,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 14,
+    marginTop: 8,
+    backgroundColor: "#FFF",
+  },
+
+  left: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+
+  placeholder: {
+    color: "#9CA3AF",
+    fontSize: 14,
+  },
+
+  text: {
+    fontSize: 14,
+    color: "#111827",
+  },
+});

@@ -1,4 +1,4 @@
-import { Modal, View, Pressable, FlatList, StyleSheet } from "react-native";
+import { Modal, Pressable, FlatList, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Icons, IconName } from "@/app/utils/Icons";
 
