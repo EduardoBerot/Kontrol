@@ -12,6 +12,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import CategorySelectInput from "./CategorySelectInput";
 import CategorySelectModal from "./CategorySelectModal";
 import { Category } from "./CategorySelectModal";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 
 // Tipagem
@@ -29,6 +30,8 @@ const TransactionModal = ({ visible, onClose, type }: ModalProps) => {
   const [category, setCategory] = useState<Category | undefined>();
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const translateY = useRef(new Animated.Value(300)).current;
+  const [date, setDate] = useState<Date | null>(null);
+  const [show, setShow] = useState(false);
 
 
   // Constantes de renderizações condicionais
@@ -44,10 +47,19 @@ const TransactionModal = ({ visible, onClose, type }: ModalProps) => {
     transferencia: "Adicionar transferência"
   }
 
+  // Função de seleçao de data
+  const handleChange = (event: any, selectedDate?: Date) => {
+    setShow(false);
+
+    if (selectedDate) {
+      setDate(selectedDate);
+    }
+  };
 
 
-  /* ===== ANIMAÇÃO DE ABERTURA ===== */
 
+
+  // Animação
   useEffect(() => {
     Animated.timing(translateY, {
       toValue: visible ? 0 : 300,
@@ -56,7 +68,7 @@ const TransactionModal = ({ visible, onClose, type }: ModalProps) => {
     }).start();
   }, [visible]);
 
-
+  // Fechar modal e resetar categoria
   useEffect(() => {
     if (!visible) {
       // quando o modal principal FECHAR
@@ -70,6 +82,7 @@ const TransactionModal = ({ visible, onClose, type }: ModalProps) => {
     <Modal transparent visible={visible} onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={onClose}>
         <Pressable>
+
           <Animated.View
             style={[
               styles.modal,
@@ -86,17 +99,40 @@ const TransactionModal = ({ visible, onClose, type }: ModalProps) => {
               </Pressable>
             </View>
 
+
+
             <View style={styles.field}>
               <Text style={styles.label}>Data</Text>
-              <TextInput
-                placeholder="Ex: Alimentação"
-                style={styles.input}
-              />
+
+              {/* Campo visual (não editável) */}
+              <Pressable onPress={() => setShow(true)}>
+                <TextInput
+                  placeholder="Selecione a data"
+                  style={styles.input}
+                  value={date ? date.toLocaleDateString("pt-BR") : ""}
+                  editable={false}
+                  pointerEvents="none"
+                />
+              </Pressable>
+
+              {show && (
+                <DateTimePicker
+                  value={date || new Date()}
+                  mode="date"
+                  display="default"
+                  onChange={handleChange}
+                />
+              )}
             </View>
+
+
+
 
             {(type === "despesa" || type === "receita") && (
               <View style={styles.field}>
-                <Text style={styles.label}>Categoria</Text>
+                <Text style={styles.label}>
+                  {type === "despesa" ? "Categoria" : "Natureza"}
+                </Text>
 
                 <CategorySelectInput
                   type={type}
@@ -116,7 +152,7 @@ const TransactionModal = ({ visible, onClose, type }: ModalProps) => {
             )}
 
 
-            
+
 
 
 

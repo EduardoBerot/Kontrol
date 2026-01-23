@@ -30,14 +30,16 @@ type ModalProps = {
 };
 
 
+
+// Tipos de receitas
 export const incomestypes: Category[] = [
-  { id: 101, name: "Salário", icon: "attach-money", color: "#22C55E" },
-  { id: 102, name: "Freelance", icon: "work", color: "#10B981" },
-  { id: 103, name: "Investimentos", icon: "trending-up", color: "#3B82F6" },
-  { id: 104, name: "Aluguel", icon: "home", color: "#8B5CF6" },
-  { id: 105, name: "Vendas", icon: "store", color: "#F59E0B" },
-  { id: 106, name: "Prêmios", icon: "emoji-events", color: "#EF4444" },
-  { id: 107, name: "Outros", icon: "more-horiz", color: "#6B7280" },
+    { id: 101, name: "Salário", icon: "attach-money", color: "#22C55E" },
+    { id: 102, name: "Freelance", icon: "work", color: "#10B981" },
+    { id: 103, name: "Investimentos", icon: "trending-up", color: "#3B82F6" },
+    { id: 104, name: "Aluguel", icon: "home", color: "#8B5CF6" },
+    { id: 105, name: "Vendas", icon: "store", color: "#F59E0B" },
+    { id: 106, name: "Prêmios", icon: "emoji-events", color: "#EF4444" },
+    { id: 107, name: "Outros", icon: "more-horiz", color: "#6B7280" },
 ];
 
 
@@ -48,7 +50,7 @@ const CategorySelectModal = ({ visible, type, onClose, onSelect }: ModalProps) =
     const translateY = useRef(new Animated.Value(400)).current;
     const [categories, setCategories] = useState<Category[]>([]);
 
-    // Ler dados do Async Storage
+    //Lê dados do Async Storage
     const readData = async () => {
         try {
             const value = await AsyncStorage.getItem('categories');
@@ -67,6 +69,7 @@ const CategorySelectModal = ({ visible, type, onClose, onSelect }: ModalProps) =
         }, [])
     );
 
+
     // Funçao de animação  
     useEffect(() => {
         Animated.timing(translateY, {
@@ -81,20 +84,20 @@ const CategorySelectModal = ({ visible, type, onClose, onSelect }: ModalProps) =
     return (
         <Modal transparent visible={visible} animationType="none">
             <View style={{ flex: 1 }}>
-                {/* BACKDROP */}
+
                 <Pressable
                     style={styles.backdrop}
                     onPress={onClose}
                 />
 
-                {/* MODAL FIXO NO FUNDO */}
+
                 <Animated.View
                     style={[
                         styles.modal,
                         { transform: [{ translateY }] },
                     ]}
                 >
-                    {/* Header */}
+
                     <View style={styles.header}>
                         <Text style={styles.title}>Selecione a categoria</Text>
                         <Pressable onPress={onClose}>
@@ -102,7 +105,7 @@ const CategorySelectModal = ({ visible, type, onClose, onSelect }: ModalProps) =
                         </Pressable>
                     </View>
 
-                    {/* Lista */}
+
                     <FlatList
                         data={type === "despesa" ? categories : incomestypes}
                         keyExtractor={(item) => item.id.toString()}
@@ -131,7 +134,10 @@ const CategorySelectModal = ({ visible, type, onClose, onSelect }: ModalProps) =
                             </Pressable>
                         )}
                     />
+
                 </Animated.View>
+
+                
             </View>
         </Modal>
 

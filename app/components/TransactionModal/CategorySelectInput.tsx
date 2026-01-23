@@ -2,21 +2,25 @@ import { Text, Pressable, StyleSheet, View } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Category } from "./CategorySelectModal";
 
+
+// Tipagem
 type Props = {
   type: "despesa" | "receita" | null;
   category?: Category;
   onPress: () => void;
 };
 
-  const inputLabel = {
-    despesa: "Selecione a Categoria",
-    receita: "Selecione a Natureza da Receita",
-  }
+
+// Constante de renderização condicional
+const inputLabel = {
+  despesa: "Selecione a Categoria",
+  receita: "Selecione a Natureza da Receita",
+}
 
 const CategorySelectInput = ({ type, category, onPress }: Props) => {
   return (
+
     <Pressable style={styles.input} onPress={onPress}>
-      {/* Se já tem categoria selecionada */}
       {category ? (
         <View style={styles.left}>
           <MaterialIcons
