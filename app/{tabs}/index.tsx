@@ -7,7 +7,8 @@ import Header from "../components/Header/Header";
 import InfoBox from "../components/InfoBox";
 import ProgressItem from "../components/ProgressItem";
 import TransactionModal from "../components/TransactionModal/TransactionModal"
-import { globalStyles } from "../styles/global";
+import { globalStyles } from "../styles/global"
+import { Transaction } from '../components/TransactionModal/TransactionModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
@@ -30,20 +31,49 @@ const Index = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [modalVisible, setmodalVisible] = useState(false);
   const [transactionType, setTransactionType] = useState<"despesa" | "receita" | "transferencia" | null>(null);
+  const [totalIncomes, setTotalIncomes] = useState<number>(0);
+  const [totalExpenses, setTotalExpenses] = useState<number>(0);
 
 
   //Lê dados do Async Storage
+  // Lê dados do Async Storage
   const readData = async () => {
     try {
+      // Categorias
       const value = await AsyncStorage.getItem('categories');
-      if (value !== null) {
-        const parsed: Category[] = JSON.parse(value);
-        setCategories(parsed);
-      }
-    } catch {
-      console.log("Problemas ao ler os dados")
+      const parsed: Category[] = value ? JSON.parse(value) : [];
+
+      // Transações
+      const data = await AsyncStorage.getItem('transactions');
+      const transactions: Transaction[] = data ? JSON.parse(data) : [];
+
+      const incomes = transactions.filter(t => t.type === "receita");
+      const expenses = transactions.filter(t => t.type === "despesa");
+
+      const incomesTotal = incomes.reduce((acc, item) => acc + item.value, 0);
+      const expensesTotal = expenses.reduce((acc, item) => acc + item.value, 0);
+
+      setTotalIncomes(incomesTotal);
+      setTotalExpenses(expensesTotal);
+
+      const updatedCategories = parsed.map(cat => {
+        const totalSpent = expenses
+          .filter(t => t.category === cat.name)
+          .reduce((acc, item) => acc + item.value, 0);
+
+        return {
+          ...cat,
+          spent: totalSpent
+        };
+      });
+
+      setCategories(updatedCategories);
+
+    } catch (err) {
+      console.log("Problemas ao ler os dados", err);
     }
-  }
+  };
+
 
   useFocusEffect(
     useCallback(() => {
@@ -114,10 +144,10 @@ const Index = () => {
         <View style={globalStyles.indexcontent}>
           <View style={[globalStyles.contentbox, globalStyles.itemscenter]}>
             <Text style={globalStyles.text}>Saldo total</Text>
-            <Text style={globalStyles.title}>R$ 8.908,87</Text>
+            <Text style={globalStyles.title}>{totalIncomes - totalExpenses}</Text>
             <View style={globalStyles.row}>
-              <InfoBox label="Receitas" value="R$ 4.500" color="green" />
-              <InfoBox label="Despesas" value="R$ -4.500" color="red" />
+              <InfoBox label="Receitas" value={totalIncomes} color="green" />
+              <InfoBox label="Despesas" value={totalExpenses} color="red" />
             </View>
           </View>
         </View>
@@ -195,6 +225,7 @@ const Index = () => {
           setmodalVisible(false)
         }}
         type={transactionType}
+        onSaved={() => readData()}
       />
 
     </View>

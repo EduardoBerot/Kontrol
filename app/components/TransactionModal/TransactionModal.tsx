@@ -13,6 +13,7 @@ import CategorySelectInput from "./CategorySelectInput";
 import CategorySelectModal from "./CategorySelectModal";
 import { Category } from "./CategorySelectModal";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 // Tipagem
@@ -20,18 +21,32 @@ type ModalProps = {
   visible: boolean;
   type: "despesa" | "receita" | "transferencia" | null;
   onClose: () => void;
+  onSaved: () => void;
+};
+
+export type Transaction = {
+  id: string;
+  type: "despesa" | "receita" | "transferencia" | null;
+  date: string;
+  value: number;
+  category?: string;
 };
 
 
 
-const TransactionModal = ({ visible, onClose, type }: ModalProps) => {
+
+const TransactionModal = ({ visible, onClose, onSaved, type }: ModalProps) => {
 
   // Hooks
   const [category, setCategory] = useState<Category | undefined>();
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const translateY = useRef(new Animated.Value(300)).current;
-  const [date, setDate] = useState<Date | null>(null);
+  const [date, setDate] = useState<Date | null>(new Date());
   const [show, setShow] = useState(false);
+  const [expenseValue, setExpenseValue] = useState(0);
+  const [incomeValue, setIncomeValue] = useState(0);
+  const [transferValue, setTransferValue] = useState(0);
+
 
 
   // Constantes de renderizações condicionais
@@ -47,6 +62,53 @@ const TransactionModal = ({ visible, onClose, type }: ModalProps) => {
     transferencia: "Adicionar transferência"
   }
 
+  // Retornar valor state salvo dependendo do tipo da transação  
+  const getCurrentValue = () => {
+    if (type === "despesa") return expenseValue;
+    if (type === "receita") return incomeValue;
+    if (type === "transferencia") return transferValue;
+    return 0;
+  };
+
+
+
+  // Salva os dados no Async Storage  
+  const saveData = async () => {
+    try {
+      const newTransaction: Transaction = {
+        id: Date.now().toString(),
+        type: type,
+        date: (date || new Date()).toISOString(),
+        value: getCurrentValue(),
+        category: category?.name
+      };
+
+      // Busca as transações que ja existem
+      const data = await AsyncStorage.getItem('transactions');
+      const transactions: Transaction[] = data ? JSON.parse(data) : [];
+
+
+      // Salva nova transação
+      await AsyncStorage.setItem('transactions', JSON.stringify([...transactions, newTransaction]));
+
+    } catch (error) {
+      console.log("Erro ao salvar:", error);
+    }
+  };
+
+
+
+  // Adiciona transação
+  const addTransaction = async () => {
+    await saveData();
+    onSaved();
+    onClose();
+  };
+
+
+
+
+
   // Função de seleçao de data
   const handleChange = (event: any, selectedDate?: Date) => {
     setShow(false);
@@ -55,6 +117,7 @@ const TransactionModal = ({ visible, onClose, type }: ModalProps) => {
       setDate(selectedDate);
     }
   };
+
 
 
 
@@ -72,7 +135,11 @@ const TransactionModal = ({ visible, onClose, type }: ModalProps) => {
   useEffect(() => {
     if (!visible) {
       // quando o modal principal FECHAR
+      setDate(new Date());
       setCategory(undefined);
+      setExpenseValue(0);
+      setIncomeValue(0);
+      setTransferValue(0);
       setCategoryModalOpen(false);
     }
   }, [visible]);
@@ -153,22 +220,33 @@ const TransactionModal = ({ visible, onClose, type }: ModalProps) => {
 
 
 
-
-
-
             <View style={styles.field}>
               <Text style={styles.label}>Valor</Text>
               <TextInput
+                keyboardType="numeric"
                 placeholder="Ex: 1.000 R$"
                 style={styles.input}
+                onChangeText={text => {
+                  const value = Number(text.replace(",", "."));
+                  { type === "despesa" ? setExpenseValue(value) : type === "receita" ? setIncomeValue(value) : setTransferValue(value) }
+                }}
               />
             </View>
 
-            <Pressable style={styles.button} >
+            <Text>
+              {type === "despesa" ? expenseValue : type === "receita" ? incomeValue : transferValue}
+            </Text>
+
+
+            <Pressable
+              style={styles.button}
+              onPress={addTransaction}
+            >
               <Text style={styles.buttonText}>
                 {type ? buttonLabel[type] : ""}
               </Text>
             </Pressable>
+
 
           </Animated.View>
         </Pressable>

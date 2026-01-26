@@ -14,39 +14,36 @@ type ProgressItemProps = {
 };
 
 // Coloração condicional
-const progressValue = 0.9;
-
 const getProgressColor = (progress: number) => {
-    if (progress < 0.5) return "#22c55e"; 
-    if (progress < 0.8) return "#eab308"; 
-    return "#ef4444";     
+    if (progress < 0.5) return "#22c55e";
+    if (progress < 0.8) return "#eab308";
+    return "#ef4444";
 };
 
 
-const ProgressItem = ({icon, label, spent, limit, color}: ProgressItemProps) => {
+const ProgressItem = ({ icon, label, spent, limit, color }: ProgressItemProps) => {
 
-    const [categorieValue, setCategorieValue] = useState(0)
-
-    const remainingValue = limit - spent
-    const percentSpent = limit > 0 ? (spent / limit) * 100 : 0;
+    const progress = limit > 0 ? spent / limit : 0;
+    const percentSpent = Math.min(progress * 100, 100);
+    const remainingValue = limit - spent;
 
 
     return (
         <View style={{ gap: 8, marginBottom: 20 }}>
 
             <View style={[globalStyles.row, globalStyles.spacebetween]}>
-                <MaterialIcons name={icon} size={30} color={color}/>
+                <MaterialIcons name={icon} size={30} color={color} />
                 <Text>{label}</Text>
                 <Text>{limit}</Text>
             </View>
 
             <View style={[globalStyles.itemscenter, globalStyles.row]}>
                 <Progress.Bar
-                    progress={categorieValue}
+                    progress={progress}
                     width={null}
                     height={20}
                     borderRadius={20}
-                    color={getProgressColor(categorieValue)}
+                    color={getProgressColor(progress)}
                     unfilledColor="#f0f1f3ff"   // fundo da barra (cinza claro)
                     borderWidth={1}
                     borderColor="#d1d5db"
@@ -59,9 +56,11 @@ const ProgressItem = ({icon, label, spent, limit, color}: ProgressItemProps) => 
 
             <View style={[globalStyles.row, globalStyles.spacebetween]}>
                 <Text style={globalStyles.mintext}>Restam: {remainingValue}</Text>
-                <Text style={globalStyles.mintext}>{percentSpent}% Utilizado</Text>
+                <Text style={globalStyles.mintext}>
+                    {Math.round(percentSpent)}% Utilizado
+                </Text>
             </View>
-            
+
         </View>
     )
 }

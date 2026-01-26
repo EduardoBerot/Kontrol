@@ -4,7 +4,7 @@ import { globalStyles } from "../styles/global";
 // Tipagem
 type InfoBoxProps = {
     label: string;
-    value: string;
+    value: any;
     color?: string;
 };
 
