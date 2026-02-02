@@ -10,16 +10,16 @@ import Header from "../components/Header/Header";
 import { globalStyles } from "../styles/global";
 
 
-const editcategories = () => {
+const EditCategories = () => {
 
-
+  // Tipagem
   type Category = {
-    id: any;
-    name: any;
+    id: number;
+    name: string;
     icon: any;
-    color: any;
-    limit: any;
-    spent: any;
+    color: string;
+    limit: string;
+    spent: string;
   };
 
 
@@ -48,13 +48,14 @@ const editcategories = () => {
     }, [])
   );
 
-
+  
+  // Render
   return (
     <View
       style={globalStyles.container}
     >
 
-      <Header showIndexContent={false} showTabsContent={true} TabTittle="Editar Categorias" />
+      <Header showIndexContent={false} showTabsContent={true} TabTitle="Editar Categorias" transactionsVersion={0} />
 
 
       <View style={globalStyles.content}>
@@ -80,7 +81,7 @@ const editcategories = () => {
               icon={item.icon}
               color={item.color}
               onEdit={() => {
-                setEditCategory(item),
+                setEditCategory(item);
                   setmodalVisible(true)
               }}
             />
@@ -97,7 +98,7 @@ const editcategories = () => {
       <CategoryAddModal
         visible={modalVisible}
         onClose={() => {
-          setmodalVisible(false),
+          setmodalVisible(false);
             setEditCategory(null);
         }}
         onSaved={() => {
@@ -111,7 +112,7 @@ const editcategories = () => {
   );
 }
 
-export default editcategories
+export default EditCategories
 
 const styles = StyleSheet.create({
   addbutton: {

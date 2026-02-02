@@ -232,12 +232,6 @@ const TransactionModal = ({ visible, onClose, onSaved, type }: ModalProps) => {
                 }}
               />
             </View>
-
-            <Text>
-              {type === "despesa" ? expenseValue : type === "receita" ? incomeValue : transferValue}
-            </Text>
-
-
             <Pressable
               style={styles.button}
               onPress={addTransaction}

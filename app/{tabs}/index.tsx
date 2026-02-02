@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { useFocusEffect } from 'expo-router';
 import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { StatusBar } from 'expo-status-bar';
@@ -10,8 +10,10 @@ import TransactionModal from "../components/TransactionModal/TransactionModal"
 import { globalStyles } from "../styles/global"
 import { Transaction } from '../components/TransactionModal/TransactionModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { formatCurrency } from "../utils/FormatCurrency";
 
 
+// Tipagem
 type Category = {
   id: any;
   name: any;
@@ -21,9 +23,8 @@ type Category = {
   spent: any;
 };
 
-
-
 const Index = () => {
+
 
   // Hooks
   const [open, setOpen] = useState(false);
@@ -33,56 +34,89 @@ const Index = () => {
   const [transactionType, setTransactionType] = useState<"despesa" | "receita" | "transferencia" | null>(null);
   const [totalIncomes, setTotalIncomes] = useState<number>(0);
   const [totalExpenses, setTotalExpenses] = useState<number>(0);
+  const [transactionsVersion, setTransactionsVersion] = useState(0);
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
 
-  //Lê dados do Async Storage
-  // Lê dados do Async Storage
+  // Lê dados filtrando por mês e ano vindos do Header
   const readData = async () => {
     try {
-      // Categorias
-      const value = await AsyncStorage.getItem('categories');
-      const parsed: Category[] = value ? JSON.parse(value) : [];
+      // Pega os dados do Async Storage
+      const storedCategories = await AsyncStorage.getItem('categories');
+      const storedTransactions = await AsyncStorage.getItem('transactions');
 
-      // Transações
-      const data = await AsyncStorage.getItem('transactions');
-      const transactions: Transaction[] = data ? JSON.parse(data) : [];
+      // Realiza o parse
+      const categoriesFromStorage: Category[] = storedCategories
+        ? JSON.parse(storedCategories)
+        : [];
 
-      const incomes = transactions.filter(t => t.type === "receita");
-      const expenses = transactions.filter(t => t.type === "despesa");
+      const transactionsFromStorage: Transaction[] = storedTransactions
+        ? JSON.parse(storedTransactions)
+        : [];
 
-      const incomesTotal = incomes.reduce((acc, item) => acc + item.value, 0);
-      const expensesTotal = expenses.reduce((acc, item) => acc + item.value, 0);
+      // Identifica o periodo selecionado atraves dos hooks
+      const isInSelectedPeriod = (dateString: string) => {
+        const date = new Date(dateString);
+        return (
+          date.getMonth() === selectedMonth &&
+          date.getFullYear() === selectedYear
+        );
+      };
 
-      setTotalIncomes(incomesTotal);
-      setTotalExpenses(expensesTotal);
+      // Filtra as transações do parse do Async Storage
+      const transactionsInPeriod = transactionsFromStorage.filter(t =>
+        isInSelectedPeriod(t.date)
+      );
 
-      const updatedCategories = parsed.map(cat => {
-        const totalSpent = expenses
-          .filter(t => t.category === cat.name)
-          .reduce((acc, item) => acc + item.value, 0);
+      // Filtra as transações por tipo (receita ou despesa)
+      const incomeTransactions = transactionsInPeriod.filter(
+        t => t.type === "receita"
+      );
+
+      const expenseTransactions = transactionsInPeriod.filter(
+        t => t.type === "despesa"
+      );
+
+      // Soma as despesas ou receitas conforme o periodo selecionado
+      const totalIncome = incomeTransactions.reduce(
+        (sum, { value }) => sum + value,
+        0
+      );
+
+      const totalExpense = expenseTransactions.reduce(
+        (sum, { value }) => sum + value,
+        0
+      );
+
+      setTotalIncomes(totalIncome);
+      setTotalExpenses(totalExpense);
+
+      // Registra o quanto foi gasto em cada categoria
+      const categoriesWithSpent = categoriesFromStorage.map(category => {
+        const spentInCategory = expenseTransactions
+          .filter(t => t.category === category.name)
+          .reduce((sum, { value }) => sum + value, 0);
 
         return {
-          ...cat,
-          spent: totalSpent
+          ...category,
+          spent: spentInCategory
         };
       });
 
-      setCategories(updatedCategories);
+      setCategories(categoriesWithSpent);
 
-    } catch (err) {
-      console.log("Problemas ao ler os dados", err);
+    } catch (error) {
+      console.log("Problemas ao ler os dados", error);
     }
   };
 
 
-  useFocusEffect(
-    useCallback(() => {
-      readData();
-    }, [])
-  );
+  useEffect(() => {
+    readData();
+  }, [selectedMonth, selectedYear]);
 
-
-  // Abrir FABs
+  // Funções do FAB
   const toggleFab = () => {
     Animated.timing(animation, {
       toValue: open ? 0 : 1,
@@ -92,7 +126,6 @@ const Index = () => {
     setOpen(!open);
   };
 
-  // Fechar FABs  
   const closeFab = () => {
     Animated.timing(animation, {
       toValue: 0,
@@ -102,8 +135,6 @@ const Index = () => {
     setOpen(false);
   };
 
-
-  // Funções de animações
   const receitaStyle = {
     transform: [
       { translateX: animation.interpolate({ inputRange: [0, 1], outputRange: [0, -60] }) },
@@ -128,26 +159,35 @@ const Index = () => {
   };
 
 
-
+  // Render
   return (
     <View style={{ flex: 1 }}>
-      <StatusBar
-        translucent
-        backgroundColor="transparent"
-        style="light"
-      />
+      <StatusBar translucent backgroundColor="transparent" style="light" />
 
       <ScrollView style={[globalStyles.container]}>
 
-        <Header showIndexContent={true} showTabsContent={false} TabTittle='Inicio' />
+        <Header
+          showIndexContent={true}
+          showTabsContent={false}
+          TabTitle='Inicio'
+          month={selectedMonth}
+          year={selectedYear}
+          onChangePeriod={(month, year) => {
+            setSelectedMonth(month);
+            setSelectedYear(year);
+          }}
+          transactionsVersion={transactionsVersion}
+        />
 
         <View style={globalStyles.indexcontent}>
           <View style={[globalStyles.contentbox, globalStyles.itemscenter]}>
             <Text style={globalStyles.text}>Saldo total</Text>
-            <Text style={globalStyles.title}>{totalIncomes - totalExpenses}</Text>
+            <Text style={globalStyles.title}>
+              {formatCurrency(totalIncomes - totalExpenses)}
+            </Text>
             <View style={globalStyles.row}>
-              <InfoBox label="Receitas" value={totalIncomes} color="green" />
-              <InfoBox label="Despesas" value={totalExpenses} color="red" />
+              <InfoBox label="Receitas" value={formatCurrency(totalIncomes)} color="green" />
+              <InfoBox label="Despesas" value={formatCurrency(totalExpenses)} color="red" />
             </View>
           </View>
         </View>
@@ -155,6 +195,7 @@ const Index = () => {
         <View style={globalStyles.indexcontent}>
           <View style={globalStyles.contentbox}>
             <Text style={[globalStyles.text, { textAlign: "center", marginBottom: 18 }]}>Orçamento</Text>
+
             {categories
               .filter(item => Number(item.limit) > 0)
               .map(item => (
@@ -163,32 +204,19 @@ const Index = () => {
                   icon={item.icon}
                   color={item.color}
                   label={item.name}
-                  limit={item.limit}
-                  spent={item.spent}
+                  limit={formatCurrency(item.limit)}
+                  spent={formatCurrency(item.spent)}
                 />
               ))}
           </View>
         </View>
-
       </ScrollView>
 
-      <Pressable
-        onPress={toggleFab}
-        style={({ pressed }) => [
-          styles.addbutton,
-          pressed && { opacity: 0.8, transform: [{ scale: 0.96 }] }
-        ]}
-      >
+      <Pressable onPress={toggleFab} style={styles.addbutton}>
         <MaterialIcons name="add" size={32} color="#fff" />
       </Pressable>
 
-      {open && (
-        <Pressable
-          style={styles.fabBackdrop}
-          onPress={closeFab}
-        />
-      )}
-
+      {open && <Pressable style={styles.fabBackdrop} onPress={closeFab} />}
 
       <Animated.View style={[styles.fabMini, receitaStyle, { backgroundColor: "#22c55e" }]}>
         <Pressable onPress={() => {
@@ -209,35 +237,32 @@ const Index = () => {
       </Animated.View>
 
       <Animated.View style={[styles.fabMini, despesaStyle, { backgroundColor: "#ef4444" }]}>
-        <Pressable
-          onPress={() => {
-            setTransactionType('despesa');
-            setmodalVisible(true);
-          }
-          }>
+        <Pressable onPress={() => {
+          setTransactionType('despesa');
+          setmodalVisible(true);
+        }}>
           <MaterialIcons name="trending-down" size={22} color="#fff" />
         </Pressable>
       </Animated.View>
 
       <TransactionModal
         visible={modalVisible}
-        onClose={() => {
-          setmodalVisible(false)
-        }}
+        onClose={() => setmodalVisible(false)}
         type={transactionType}
-        onSaved={() => readData()}
+        onSaved={() => {
+          readData();
+          setTransactionsVersion(prev => prev + 1); // 🔹 avisa que mudou
+        }}
       />
 
     </View>
-
   );
-}
+};
 
+export default Index;
 
-export default Index
 
 const styles = StyleSheet.create({
-
   addbutton: {
     backgroundColor: "rgba(37, 97, 236, 1)",
     width: 56,
@@ -255,7 +280,6 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     zIndex: 15
   },
-
   fabBackdrop: {
     position: "absolute",
     top: 0,
@@ -265,8 +289,6 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     zIndex: 5,
   },
-
-
   fabMini: {
     position: "absolute",
     alignSelf: "center",
@@ -277,7 +299,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     elevation: 5,
-    zIndex: 10,   // importante
+    zIndex: 10,
   },
-
-})
+});

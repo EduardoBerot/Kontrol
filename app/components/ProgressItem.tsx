@@ -1,15 +1,15 @@
-import { Text, View } from "react-native";
+import { Text, View, StyleSheet } from "react-native";
 import { MaterialIcons } from '@expo/vector-icons';
 import { globalStyles } from "../styles/global";
 import * as Progress from 'react-native-progress';
-import { useState } from "react";
+import { formatCurrency } from "../utils/FormatCurrency";
 
 // Tipagem
 type ProgressItemProps = {
     icon: any;
     label: string;
-    spent: number;
-    limit: number;
+    spent: string;
+    limit: string;
     color: string;
 };
 
@@ -20,49 +20,126 @@ const getProgressColor = (progress: number) => {
     return "#ef4444";
 };
 
-
 const ProgressItem = ({ icon, label, spent, limit, color }: ProgressItemProps) => {
 
-    const progress = limit > 0 ? spent / limit : 0;
-    const percentSpent = Math.min(progress * 100, 100);
-    const remainingValue = limit - spent;
+    const normalizeNumber = (value: string) =>
+        Number(
+            value
+                .replace(/\./g, '')
+                .replace(',', '.')
+                .replace(/[^\d.-]/g, '')
+        );
 
+    const spentValue = normalizeNumber(spent);
+    const limitValue = normalizeNumber(limit);
+
+    const progress = limitValue > 0 ? spentValue / limitValue : 0;
+    const percentSpent = Math.min(progress * 100, 100);
+    const remainingValue = limitValue - spentValue;
 
     return (
-        <View style={{ gap: 8, marginBottom: 20 }}>
+        <View style={[styles.card]}>
 
-            <View style={[globalStyles.row, globalStyles.spacebetween]}>
-                <MaterialIcons name={icon} size={30} color={color} />
-                <Text>{label}</Text>
-                <Text>{limit}</Text>
+            {/* Header */}
+            <View style={[globalStyles.row, globalStyles.spacebetween, styles.header]}>
+                <View style={[globalStyles.row, styles.left]}>
+                    <View style={[styles.iconBox, { backgroundColor: `${color}20` }]}>
+                        <MaterialIcons name={icon} size={22} color={color} />
+                    </View>
+                    <Text style={styles.label}>{label}</Text>
+                </View>
+
+                <Text style={styles.limit}>
+                    {formatCurrency(limitValue)}
+                </Text>
             </View>
 
+            {/* Progress bar */}
             <View style={[globalStyles.itemscenter, globalStyles.row]}>
                 <Progress.Bar
                     progress={progress}
                     width={null}
-                    height={20}
-                    borderRadius={20}
+                    height={14}
+                    borderRadius={10}
                     color={getProgressColor(progress)}
-                    unfilledColor="#f0f1f3ff"   // fundo da barra (cinza claro)
-                    borderWidth={1}
-                    borderColor="#d1d5db"
+                    unfilledColor="#f1f5f9"
+                    borderWidth={0}
                     animated
-                    style={{
-                        flex: 1,
-                    }}
+                    style={{ flex: 1 }}
                 />
             </View>
 
-            <View style={[globalStyles.row, globalStyles.spacebetween]}>
-                <Text style={globalStyles.mintext}>Restam: {remainingValue}</Text>
-                <Text style={globalStyles.mintext}>
-                    {Math.round(percentSpent)}% Utilizado
+            {/* Footer */}
+            <View style={[globalStyles.row, globalStyles.spacebetween, styles.footer]}>
+                <Text style={styles.remaining}>
+                    Restam: {formatCurrency(remainingValue)}
+                </Text>
+                <Text style={styles.percent}>
+                    {Math.round(percentSpent)}%
                 </Text>
             </View>
 
         </View>
-    )
-}
+    );
+};
 
-export default ProgressItem
+export default ProgressItem;
+
+const styles = StyleSheet.create({
+    card: {
+        backgroundColor: "#ffffff",
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 16,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        elevation: 3,
+        gap: 12
+    },
+
+    header: {
+        alignItems: "center"
+    },
+
+    left: {
+        alignItems: "center",
+        gap: 10
+    },
+
+    iconBox: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        alignItems: "center",
+        justifyContent: "center"
+    },
+
+    label: {
+        fontSize: 15,
+        fontWeight: "600",
+        color: "#111827"
+    },
+
+    limit: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: "#374151"
+    },
+
+    footer: {
+        alignItems: "center"
+    },
+
+    remaining: {
+        fontSize: 13,
+        color: "#6b7280"
+    },
+
+    percent: {
+        fontSize: 13,
+        fontWeight: "600",
+        color: "#374151"
+    }
+});

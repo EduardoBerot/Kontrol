@@ -6,24 +6,29 @@ import { globalStyles } from "../../styles/global";
 import HeaderIndexContent from './components/HeaderIndexContent';
 import HeaderTabsContent from './components/HeaderTabsContent';
 
-//Tipagem
 type HeaderProps = {
     showIndexContent: boolean;
     showTabsContent: boolean;
-    TabTittle: string;
+    TabTitle: string;
+    month?: number;
+    year?: number;
+    onChangePeriod?: (month: number, year: number) => void;
+    transactionsVersion: number; // 🔹 novo
 };
-
 
 const Header = ({
     showIndexContent = true,
     showTabsContent = false,
-    TabTittle
+    TabTitle,
+    month,
+    year,
+    transactionsVersion,
+    onChangePeriod
+
 }: HeaderProps) => {
 
-    // Hooks
     const navigation = useNavigation();
 
-    // Abrir menu lateral
     const openDrawer = () => {
         navigation.dispatch(DrawerActions.openDrawer());
     };
@@ -37,8 +42,16 @@ const Header = ({
                 globalStyles.spacebetween
             ]}
         >
-            {showIndexContent && <HeaderIndexContent />}
-            {showTabsContent && <HeaderTabsContent TabTittle={TabTittle}/>}
+            {showIndexContent && (
+                <HeaderIndexContent
+                    month={month!}
+                    year={year!}
+                    onChangePeriod={onChangePeriod!}
+                    transactionsVersion={transactionsVersion}
+                />
+            )}
+
+            {showTabsContent && <HeaderTabsContent TabTittle={TabTitle} />}
 
             <MaterialIcons
                 onPress={openDrawer}
@@ -50,7 +63,7 @@ const Header = ({
     );
 }
 
-export default Header
+export default Header;
 
 const styles = StyleSheet.create({
     header: {
@@ -58,4 +71,4 @@ const styles = StyleSheet.create({
         backgroundColor: "rgba(37, 97, 236, 1)",
         padding: 20,
     }
-})
+});
