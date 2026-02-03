@@ -55,7 +55,7 @@ const EditCategories = () => {
       style={globalStyles.container}
     >
 
-      <Header showIndexContent={false} showTabsContent={true} TabTitle="Editar Categorias" transactionsVersion={0} />
+      <Header showIndexContent={false} showTabsContent={true} TabTitle="Editar Categorias"/>
 
 
       <View style={globalStyles.content}>

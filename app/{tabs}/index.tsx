@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRef, useState, useCallback, useEffect } from "react";
-import { useFocusEffect } from 'expo-router';
+import { useRef, useState, useEffect } from "react";
+import { useRouter } from "expo-router";
 import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { StatusBar } from 'expo-status-bar';
 import Header from "../components/Header/Header";
@@ -11,6 +11,9 @@ import { globalStyles } from "../styles/global"
 import { Transaction } from '../components/TransactionModal/TransactionModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { formatCurrency } from "../utils/FormatCurrency";
+import { useFocusEffect } from "expo-router";
+import { useCallback } from "react";
+
 
 
 // Tipagem
@@ -27,6 +30,7 @@ const Index = () => {
 
 
   // Hooks
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const animation = useRef(new Animated.Value(0)).current;
   const [categories, setCategories] = useState<Category[]>([]);
@@ -34,7 +38,6 @@ const Index = () => {
   const [transactionType, setTransactionType] = useState<"despesa" | "receita" | "transferencia" | null>(null);
   const [totalIncomes, setTotalIncomes] = useState<number>(0);
   const [totalExpenses, setTotalExpenses] = useState<number>(0);
-  const [transactionsVersion, setTransactionsVersion] = useState(0);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
@@ -111,10 +114,11 @@ const Index = () => {
     }
   };
 
-
-  useEffect(() => {
-    readData();
-  }, [selectedMonth, selectedYear]);
+  useFocusEffect(
+    useCallback(() => {
+      readData();
+    }, [selectedMonth, selectedYear])
+  );
 
   // Funções do FAB
   const toggleFab = () => {
@@ -176,7 +180,6 @@ const Index = () => {
             setSelectedMonth(month);
             setSelectedYear(year);
           }}
-          transactionsVersion={transactionsVersion}
         />
 
         <View style={globalStyles.indexcontent}>
@@ -251,7 +254,6 @@ const Index = () => {
         type={transactionType}
         onSaved={() => {
           readData();
-          setTransactionsVersion(prev => prev + 1); // 🔹 avisa que mudou
         }}
       />
 

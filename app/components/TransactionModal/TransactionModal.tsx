@@ -15,13 +15,12 @@ import { Category } from "./CategorySelectModal";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-
 // Tipagem
 type ModalProps = {
   visible: boolean;
   type: "despesa" | "receita" | "transferencia" | null;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved?: () => void; // 🔹 ALTERADO (opcional)
 };
 
 export type Transaction = {
@@ -32,12 +31,12 @@ export type Transaction = {
   category?: string;
 };
 
-
-
-
-const TransactionModal = ({ visible, onClose, onSaved, type }: ModalProps) => {
-
-  // Hooks
+const TransactionModal = ({
+  visible,
+  onClose,
+  onSaved,
+  type,
+}: ModalProps) => {
   const [category, setCategory] = useState<Category | undefined>();
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const translateY = useRef(new Animated.Value(300)).current;
@@ -47,22 +46,18 @@ const TransactionModal = ({ visible, onClose, onSaved, type }: ModalProps) => {
   const [incomeValue, setIncomeValue] = useState(0);
   const [transferValue, setTransferValue] = useState(0);
 
-
-
-  // Constantes de renderizações condicionais
   const buttonLabel = {
     despesa: "Salvar Despesa",
     receita: "Salvar Receita",
-    transferencia: "Salvar Transferência"
-  }
+    transferencia: "Salvar Transferência",
+  };
 
   const modalTitle = {
     despesa: "Adicionar despesa",
     receita: "Adicionar receita",
-    transferencia: "Adicionar transferência"
-  }
+    transferencia: "Adicionar transferência",
+  };
 
-  // Retornar valor state salvo dependendo do tipo da transação  
   const getCurrentValue = () => {
     if (type === "despesa") return expenseValue;
     if (type === "receita") return incomeValue;
@@ -70,9 +65,6 @@ const TransactionModal = ({ visible, onClose, onSaved, type }: ModalProps) => {
     return 0;
   };
 
-
-
-  // Salva os dados no Async Storage  
   const saveData = async () => {
     try {
       const newTransaction: Transaction = {
@@ -80,49 +72,34 @@ const TransactionModal = ({ visible, onClose, onSaved, type }: ModalProps) => {
         type: type,
         date: (date || new Date()).toISOString(),
         value: getCurrentValue(),
-        category: category?.name
+        category: category?.name,
       };
 
-      // Busca as transações que ja existem
-      const data = await AsyncStorage.getItem('transactions');
+      const data = await AsyncStorage.getItem("transactions");
       const transactions: Transaction[] = data ? JSON.parse(data) : [];
 
-
-      // Salva nova transação
-      await AsyncStorage.setItem('transactions', JSON.stringify([...transactions, newTransaction]));
-
+      await AsyncStorage.setItem(
+        "transactions",
+        JSON.stringify([...transactions, newTransaction])
+      );
     } catch (error) {
       console.log("Erro ao salvar:", error);
     }
   };
 
-
-
-  // Adiciona transação
   const addTransaction = async () => {
     await saveData();
-    onSaved();
+    onSaved?.(); // 🔹 ALTERADO (chamada segura)
     onClose();
   };
 
-
-
-
-
-  // Função de seleçao de data
   const handleChange = (event: any, selectedDate?: Date) => {
     setShow(false);
-
     if (selectedDate) {
       setDate(selectedDate);
     }
   };
 
-
-
-
-
-  // Animação
   useEffect(() => {
     Animated.timing(translateY, {
       toValue: visible ? 0 : 300,
@@ -131,10 +108,8 @@ const TransactionModal = ({ visible, onClose, onSaved, type }: ModalProps) => {
     }).start();
   }, [visible]);
 
-  // Fechar modal e resetar categoria
   useEffect(() => {
     if (!visible) {
-      // quando o modal principal FECHAR
       setDate(new Date());
       setCategory(undefined);
       setExpenseValue(0);
@@ -144,19 +119,18 @@ const TransactionModal = ({ visible, onClose, onSaved, type }: ModalProps) => {
     }
   }, [visible]);
 
-
   return (
     <Modal transparent visible={visible} onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={onClose}>
         <Pressable>
-
           <Animated.View
             style={[
               styles.modal,
-              { transform: [{ translateY }] },
+              {
+                transform: [{ translateY }],
+              },
             ]}
           >
-
             <View style={styles.header}>
               <Text style={styles.title}>
                 {type ? modalTitle[type] : ""}
@@ -166,12 +140,8 @@ const TransactionModal = ({ visible, onClose, onSaved, type }: ModalProps) => {
               </Pressable>
             </View>
 
-
-
             <View style={styles.field}>
               <Text style={styles.label}>Data</Text>
-
-              {/* Campo visual (não editável) */}
               <Pressable onPress={() => setShow(true)}>
                 <TextInput
                   placeholder="Selecione a data"
@@ -191,9 +161,6 @@ const TransactionModal = ({ visible, onClose, onSaved, type }: ModalProps) => {
                 />
               )}
             </View>
-
-
-
 
             {(type === "despesa" || type === "receita") && (
               <View style={styles.field}>
@@ -218,38 +185,36 @@ const TransactionModal = ({ visible, onClose, onSaved, type }: ModalProps) => {
               </View>
             )}
 
-
-
             <View style={styles.field}>
               <Text style={styles.label}>Valor</Text>
               <TextInput
                 keyboardType="numeric"
                 placeholder="Ex: 1.000 R$"
                 style={styles.input}
-                onChangeText={text => {
+                onChangeText={(text) => {
                   const value = Number(text.replace(",", "."));
-                  { type === "despesa" ? setExpenseValue(value) : type === "receita" ? setIncomeValue(value) : setTransferValue(value) }
+                  type === "despesa"
+                    ? setExpenseValue(value)
+                    : type === "receita"
+                    ? setIncomeValue(value)
+                    : setTransferValue(value);
                 }}
               />
             </View>
-            <Pressable
-              style={styles.button}
-              onPress={addTransaction}
-            >
+
+            <Pressable style={styles.button} onPress={addTransaction}>
               <Text style={styles.buttonText}>
                 {type ? buttonLabel[type] : ""}
               </Text>
             </Pressable>
-
-
           </Animated.View>
         </Pressable>
       </Pressable>
     </Modal>
   );
-}
+};
 
-export default TransactionModal
+export default TransactionModal;
 
 const styles = StyleSheet.create({
   overlay: {
@@ -257,7 +222,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.45)",
     justifyContent: "flex-end",
   },
-
   modal: {
     backgroundColor: "#FFF",
     padding: 20,
@@ -266,29 +230,24 @@ const styles = StyleSheet.create({
     width: "100%",
     elevation: 10,
   },
-
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     marginBottom: 20,
   },
-
   title: {
     fontSize: 16,
     fontWeight: "600",
   },
-
   field: {
     marginBottom: 16,
   },
-
   label: {
     fontSize: 13,
     color: "#374151",
     marginBottom: 6,
   },
-
   input: {
     height: 48,
     borderWidth: 1,
@@ -296,7 +255,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 12,
   },
-
   button: {
     height: 48,
     borderRadius: 12,
@@ -305,7 +263,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 8,
   },
-
   buttonText: {
     color: "#FFF",
     fontWeight: "600",

@@ -22,7 +22,7 @@ const IconPickerModal = ({ visible, color, onClose, onSelect }: Props) => {
 
       <Pressable style={styles.overlay} onPress={onClose}>
 
-        <Pressable style={styles.container} onPress={() => {}}>
+        <Pressable style={styles.container} onPress={() => { }}>
 
           <Pressable style={styles.closeButton} onPress={onClose}>
             <MaterialIcons name="close" size={24} />
@@ -32,6 +32,9 @@ const IconPickerModal = ({ visible, color, onClose, onSelect }: Props) => {
             data={Icons}
             numColumns={4}
             keyExtractor={(item) => item}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContent}
+            style={styles.list}
             renderItem={({ item }) => (
               <Pressable
                 style={styles.icon}
@@ -44,7 +47,8 @@ const IconPickerModal = ({ visible, color, onClose, onSelect }: Props) => {
               </Pressable>
             )}
           />
-          
+
+
         </Pressable>
       </Pressable>
     </Modal>
@@ -60,21 +64,35 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+
   container: {
     backgroundColor: "#fff",
     borderRadius: 12,
-    padding: 16,
+    paddingTop: 32,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
     width: "80%",
+    maxHeight: "60%", // 🔹 controla o tamanho do modal
   },
+
   closeButton: {
     position: "absolute",
     top: 8,
     right: 8,
     zIndex: 1,
   },
+
+  list: {
+    maxHeight: "100%", // 🔹 FlatList respeita o container
+  },
+
+  listContent: {
+    paddingBottom: 8,
+  },
+
   icon: {
-    flex: 1,
     padding: 12,
     alignItems: "center",
+    flex: 1,
   },
 });

@@ -3,43 +3,60 @@ import { Drawer } from "expo-router/drawer";
 import { StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
+import { TransactionsProvider } from "../context/TransactionContext";
+
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <Drawer
-        screenOptions={{
-          drawerPosition: "right",
-          headerShown: false,
-          drawerStyle: styles.drawer,
-          drawerActiveTintColor: "#2563EB",
-          drawerInactiveTintColor: "#6B7280",
-          drawerActiveBackgroundColor: "#EFF6FF",
-          drawerLabelStyle: styles.drawerLabel,
-          drawerItemStyle: styles.drawerItem,
-        }}
-      >
-        <Drawer.Screen
-          name="index"
-          options={{
-            title: "Início",
-            drawerIcon: ({ color, size }) => (
-              <MaterialIcons name="home" size={size} color={color} />
-            ),
+      <TransactionsProvider>
+        <Drawer
+          screenOptions={{
+            drawerPosition: "right",
+            headerShown: false,
+            drawerStyle: styles.drawer,
+            drawerActiveTintColor: "#2563EB",
+            drawerInactiveTintColor: "#6B7280",
+            drawerActiveBackgroundColor: "#EFF6FF",
+            drawerLabelStyle: styles.drawerLabel,
+            drawerItemStyle: styles.drawerItem,
           }}
-        />
-        <Drawer.Screen
-          name="EditCategories"
-          options={{
-            title: "Editar Categorias",
-            drawerIcon: ({ color, size }) => (
-              <MaterialIcons name="edit" size={size} color={color} />
-            ),
-          }}
-        />
-      </Drawer>
+        >
+          <Drawer.Screen
+            name="index"
+            options={{
+              title: "Início",
+              drawerIcon: ({ color, size }) => (
+                <MaterialIcons name="home" size={size} color={color} />
+              ),
+            }}
+          />
+
+          <Drawer.Screen
+            name="editcategories"
+            options={{
+              title: "Editar Categorias",
+              drawerIcon: ({ color, size }) => (
+                <MaterialIcons name="edit" size={size} color={color} />
+              ),
+            }}
+          />
+
+          <Drawer.Screen
+            name="Transactions"
+            options={{
+              title: "Transações",
+              drawerIcon: ({ color, size }) => (
+                <MaterialIcons name="list" size={size} color={color} />
+              ),
+            }}
+          />
+        </Drawer>
+      </TransactionsProvider>
     </GestureHandlerRootView>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   drawer: {

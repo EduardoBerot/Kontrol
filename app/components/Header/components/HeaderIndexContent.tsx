@@ -14,7 +14,6 @@ type Props = {
   month: number;
   year: number;
   onChangePeriod: (month: number, year: number) => void;
-  transactionsVersion: number;
 };
 
 
@@ -24,7 +23,7 @@ const months = [
   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
 ];
 
-const HeaderIndexContent = ({ month, year, transactionsVersion, onChangePeriod }: Props) => {
+const HeaderIndexContent = ({ month, year, onChangePeriod }: Props) => {
 
   // Hooks
   const [visible, setVisible] = useState(false);
@@ -68,7 +67,7 @@ const HeaderIndexContent = ({ month, year, transactionsVersion, onChangePeriod }
     if (visible) {
       loadAvailableMonths(selectedYear);
     }
-  }, [visible, selectedYear, transactionsVersion]);
+  }, [visible, selectedYear]);
 
 
   const onSelectMonth = (index: number) => {

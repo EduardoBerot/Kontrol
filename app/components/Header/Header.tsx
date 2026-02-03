@@ -13,7 +13,6 @@ type HeaderProps = {
     month?: number;
     year?: number;
     onChangePeriod?: (month: number, year: number) => void;
-    transactionsVersion: number; // 🔹 novo
 };
 
 const Header = ({
@@ -22,7 +21,6 @@ const Header = ({
     TabTitle,
     month,
     year,
-    transactionsVersion,
     onChangePeriod
 
 }: HeaderProps) => {
@@ -47,7 +45,6 @@ const Header = ({
                     month={month!}
                     year={year!}
                     onChangePeriod={onChangePeriod!}
-                    transactionsVersion={transactionsVersion}
                 />
             )}
 
