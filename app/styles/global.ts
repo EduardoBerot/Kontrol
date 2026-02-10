@@ -13,7 +13,6 @@ export const globalStyles = StyleSheet.create({
     },
 
     content: {
-        justifyContent: "center",
         alignItems: "center"
     },
 

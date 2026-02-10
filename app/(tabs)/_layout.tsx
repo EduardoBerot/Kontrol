@@ -31,11 +31,21 @@ export default function RootLayout() {
           />
 
           <Drawer.Screen
-            name="manage"
+            name="accounts"
             options={{
-              title: "Configurações",
+              title: "Contas",
               drawerIcon: ({ color, size }) => (
-                <MaterialIcons name="settings" size={size} color={color} />
+                <MaterialIcons name="account-balance" size={size} color={color} />
+              ),
+            }}
+          />
+
+          <Drawer.Screen
+            name="categories"
+            options={{
+              title: "Categorias",
+              drawerIcon: ({ color, size }) => (
+                <MaterialIcons name="grid-view" size={size} color={color} />
               ),
             }}
           />
