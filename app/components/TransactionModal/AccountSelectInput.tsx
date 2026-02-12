@@ -1,6 +1,6 @@
 import { Text, Pressable, StyleSheet, View, Image } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Account } from "../AccountAddModal/AccountAddModal";
+import { Account } from "@/app/types/Account";
 import BanksLogo from "@/app/utils/BanksLogo";
 
 

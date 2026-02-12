@@ -5,14 +5,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import AccountIconPickerModal from "./AccountIconPickerModal";
 import AccountIconSelectInput from "./AccountIconSelectInput";
 import { BankKey } from "@/app/utils/BanksLogo";
+import { Account } from "@/app/types/Account";
 
 
-// Tipagem
-export type Account = {
-  id: number;
-  name: string;
-  bank: BankKey;
-};
 
 type ModalProps = {
   visible: boolean;
@@ -73,10 +68,12 @@ const AccountAddModal = ({ visible, account, onClose, onSaved }: ModalProps) => 
         );
       } else {
         const newAccount: Account = {
-          id: Date.now(),
+          id: Date.now().toString(),
           name,
           bank: bank!,
+          balance: 0,
         };
+
         updated = [...current, newAccount];
       }
 
@@ -170,7 +167,7 @@ const AccountAddModal = ({ visible, account, onClose, onSaved }: ModalProps) => 
         </Pressable>
 
       </Pressable>
-      
+
     </Modal>
   );
 };

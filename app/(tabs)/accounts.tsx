@@ -8,17 +8,8 @@ import AccountAddModal from "../components/AccountAddModal/AccountAddModal";
 import AccountRender from "../components/AccountRender";
 import Header from "../components/Header/Header";
 import { globalStyles } from "../styles/global";
-import { BankKey } from "../utils/BanksLogo";
-
-
-// Tipagem
-type Account = {
-  id: number;
-  name: string;
-  bank: BankKey;
-  balance: string;
-};
-
+import { Account } from "../types/Account";
+import { useTransactionsContext } from "../context/TransactionContext";
 
 
 const accounts = () => {
@@ -29,33 +20,22 @@ const accounts = () => {
   const [editAccount, setEditAccount] = useState<Account | null>(null);
 
 
-  //Lê as categorias do Async Storage
-  const readData = async () => {
-    try {
-      const accountsValue = await AsyncStorage.getItem("accounts");
-
-      if (accountsValue) {
-        setAccounts(JSON.parse(accountsValue));
-      }
-
-    } catch {
-      console.log("Erro ao ler dados");
-    }
-  };
-
-
-
-  // Lê as contas do Async Storage
+  //Lê as contas do Async Storage
   const readAccounts = async () => {
     try {
-      const value = await AsyncStorage.getItem("accounts");
-      if (value) {
-        setAccounts(JSON.parse(value));
+      const stored = await AsyncStorage.getItem("accounts");
+
+      if (stored) {
+        setAccounts(JSON.parse(stored));
+      } else {
+        setAccounts([]);
       }
-    } catch {
-      console.log("Erro ao ler contas");
+
+    } catch (error) {
+      console.log("Erro ao ler contas:", error);
     }
   };
+
 
   // Função pra salvar reorganização das contas
   const saveAccounts = async (newAccounts: Account[]) => {
@@ -67,13 +47,14 @@ const accounts = () => {
     }
   };
 
-
+  const { refresh } = useTransactionsContext();
 
   useFocusEffect(
     useCallback(() => {
-      readData();
-    }, [])
+      readAccounts();
+    }, [refresh])
   );
+
 
 
   // Render
@@ -86,7 +67,7 @@ const accounts = () => {
 
 
       <View style={[globalStyles.content, { flex: 1 }]}>
-        <View style={[globalStyles.contentbox, { marginTop: 20}]}>
+        <View style={[globalStyles.contentbox, { marginTop: 20 }]}>
           <View
             style={[
               globalStyles.row,
@@ -107,7 +88,7 @@ const accounts = () => {
             </Pressable>
           </View>
 
-          <View style={{maxHeight: "90%"}}>
+          <View style={{ maxHeight: "90%" }}>
             <DraggableFlatList
               data={accounts}
               keyExtractor={(item) => item.id.toString()}
@@ -128,8 +109,10 @@ const accounts = () => {
                   >
 
                     <AccountRender
+                      id={item.id}
                       name={item.name}
                       bank={item.bank}
+                      balance={item.balance}
                       onEdit={() => {
                         setEditAccount(item);
                         setAccountModalVisible(true);

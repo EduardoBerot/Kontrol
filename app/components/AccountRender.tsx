@@ -1,16 +1,13 @@
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { globalStyles } from "../styles/global";
-import BanksLogo, { BankKey } from "@/app/utils/BanksLogo";
+import BanksLogo from "@/app/utils/BanksLogo";
+import { Account } from "../types/Account";
+import formatCurrency from "../utils/FormatCurrency";
 
-// Tipagem
-type AccountRenderProps = {
-  name: string;
-  bank: BankKey;
-  onEdit?: () => void;
-};
 
-const AccountRender = ({ name, bank, onEdit }: AccountRenderProps) => {
+
+const AccountRender = ({ id, name, bank, balance, onEdit }: Account) => {
 
   // Render
   return (
@@ -24,6 +21,7 @@ const AccountRender = ({ name, bank, onEdit }: AccountRenderProps) => {
 
       <View style={styles.textContainer}>
         <Text style={globalStyles.text}>{name}</Text>
+        <Text>{formatCurrency(balance)}</Text>
       </View>
 
       <TouchableOpacity

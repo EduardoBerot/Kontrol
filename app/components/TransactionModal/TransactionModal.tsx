@@ -16,8 +16,7 @@ import CategorySelectModal from "./CategorySelectModal";
 import { Category } from "./CategorySelectModal";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import accounts from "@/app/(tabs)/accounts";
-import { Account } from "../AccountAddModal/AccountAddModal";
+import { Account } from "@/app/types/Account";
 
 // Tipagem
 type ModalProps = {
@@ -29,11 +28,15 @@ type ModalProps = {
 
 export type Transaction = {
   id: string;
-  type: "despesa" | "receita" | "transferencia" | null;
-  date: string;
+  type: "receita" | "despesa" | "transferencia";
   value: number;
-  category?: string;
+  date: string;
+  category: string;
+  accountId: string;
+  toAccountId?: string;
 };
+
+
 
 const TransactionModal = ({
   visible,
@@ -51,6 +54,10 @@ const TransactionModal = ({
   const [expenseValue, setExpenseValue] = useState(0);
   const [incomeValue, setIncomeValue] = useState(0);
   const [transferValue, setTransferValue] = useState(0);
+
+  const [toAccount, setToAccount] = useState<Account | undefined>();
+  const [toAccountModalOpen, setToAccountModalOpen] = useState(false);
+
 
   const buttonLabel = {
     despesa: "Salvar Despesa",
@@ -73,13 +80,21 @@ const TransactionModal = ({
 
   const saveData = async () => {
     try {
+      const value = getCurrentValue();
+
       const newTransaction: Transaction = {
         id: Date.now().toString(),
-        type: type,
+        type: type!,
         date: (date || new Date()).toISOString(),
         value: getCurrentValue(),
-        category: category?.name,
+        category: category?.name || "Transferência",
+        accountId: account!.id,
+        toAccountId: toAccount?.id,
       };
+
+
+
+      await updateAccountBalance(value);
 
       const data = await AsyncStorage.getItem("transactions");
       const transactions: Transaction[] = data ? JSON.parse(data) : [];
@@ -88,10 +103,12 @@ const TransactionModal = ({
         "transactions",
         JSON.stringify([...transactions, newTransaction])
       );
+
     } catch (error) {
       console.log("Erro ao salvar:", error);
     }
   };
+
 
   const addTransaction = async () => {
     await saveData();
@@ -106,6 +123,45 @@ const TransactionModal = ({
     }
   };
 
+
+  const updateAccountBalance = async (transactionValue: number) => {
+    if (!account) return;
+
+    try {
+      const data = await AsyncStorage.getItem("accounts");
+      const accounts: Account[] = data ? JSON.parse(data) : [];
+
+      const updatedAccounts = accounts.map((acc: Account) => {
+
+        let newBalance = acc.balance ?? 0;
+
+        // Conta origem
+        if (acc.id === account.id) {
+          if (type === "despesa") newBalance -= transactionValue;
+          if (type === "receita") newBalance += transactionValue;
+          if (type === "transferencia") newBalance -= transactionValue;
+        }
+
+        // Conta destino
+        if (type === "transferencia" && acc.id === toAccount?.id) {
+          newBalance += transactionValue;
+        }
+
+        return {
+          ...acc,
+          balance: newBalance
+        };
+      });
+
+      await AsyncStorage.setItem("accounts", JSON.stringify(updatedAccounts));
+
+    } catch (error) {
+      console.log("Erro ao atualizar saldo:", error);
+    }
+  };
+
+
+
   useEffect(() => {
     Animated.timing(translateY, {
       toValue: visible ? 0 : 300,
@@ -118,11 +174,13 @@ const TransactionModal = ({
     if (!visible) {
       setDate(new Date());
       setAccount(undefined);
+      setToAccount(undefined);
       setCategory(undefined);
       setExpenseValue(0);
       setIncomeValue(0);
       setTransferValue(0);
       setCategoryModalOpen(false);
+
     }
   }, [visible]);
 
@@ -189,6 +247,25 @@ const TransactionModal = ({
                 onSelect={setAccount}
               />
             </View>
+
+
+            {type === "transferencia" && (
+              <View style={styles.field}>
+                <Text style={styles.label}>Para conta</Text>
+
+                <AccountSelectInput
+                  Account={toAccount}
+                  onPress={() => setToAccountModalOpen(true)}
+                />
+
+                <AccountSelectModal
+                  visible={toAccountModalOpen}
+                  onClose={() => setToAccountModalOpen(false)}
+                  onSelect={setToAccount}
+                />
+              </View>
+            )}
+
 
             {(type === "despesa" || type === "receita") && (
               <View style={styles.field}>

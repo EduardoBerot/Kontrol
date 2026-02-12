@@ -9,7 +9,8 @@ import { globalStyles } from "../styles/global";
 import Header from "../components/Header/Header";
 import { useTransactionsContext } from "../context/TransactionContext";
 
-type FilterType = "receita" | "despesa" | "saldo";
+type FilterType = "receita" | "despesa" | "transferencia" | "saldo";
+
 
 export default function transactions() {
 
@@ -63,16 +64,69 @@ export default function transactions() {
                     text: "Excluir",
                     style: "destructive",
                     onPress: async () => {
-                        const stored = await AsyncStorage.getItem("transactions");
-                        const parsed: Transaction[] = stored ? JSON.parse(stored) : [];
+                        const storedTransactions = await AsyncStorage.getItem("transactions");
+                        const parsedTransactions: Transaction[] = storedTransactions
+                            ? JSON.parse(storedTransactions)
+                            : [];
 
-                        const updated = parsed.filter(t => t.id !== id);
+                        const transactionToDelete = parsedTransactions.find(t => t.id === id);
 
-                        await AsyncStorage.setItem("transactions", JSON.stringify(updated));
+                        if (!transactionToDelete) return;
+
+                        // REMOVE DA LISTA
+                        const updatedTransactions = parsedTransactions.filter(t => t.id !== id);
+                        await AsyncStorage.setItem("transactions", JSON.stringify(updatedTransactions));
+
+                        // ATUALIZA SALDO DA CONTA
+                        const storedAccounts = await AsyncStorage.getItem("accounts");
+                        const accounts = storedAccounts ? JSON.parse(storedAccounts) : [];
+
+                        const updatedAccounts = accounts.map((acc: any) => {
+                            let newBalance = acc.balance ?? 0;
+
+                            // RECEITA
+                            if (
+                                transactionToDelete.type === "receita" &&
+                                acc.id === transactionToDelete.accountId
+                            ) {
+                                newBalance -= transactionToDelete.value;
+                            }
+
+                            // DESPESA
+                            if (
+                                transactionToDelete.type === "despesa" &&
+                                acc.id === transactionToDelete.accountId
+                            ) {
+                                newBalance += transactionToDelete.value;
+                            }
+
+                            // TRANSFERÊNCIA
+                            if (transactionToDelete.type === "transferencia") {
+
+                                // Conta ORIGEM → devolve dinheiro
+                                if (acc.id === transactionToDelete.accountId) {
+                                    newBalance += transactionToDelete.value;
+                                }
+
+                                // Conta DESTINO → remove dinheiro recebido
+                                if (acc.id === transactionToDelete.toAccountId) {
+                                    newBalance -= transactionToDelete.value;
+                                }
+                            }
+
+                            return {
+                                ...acc,
+                                balance: newBalance
+                            };
+                        });
+
+
+                        await AsyncStorage.setItem("accounts", JSON.stringify(updatedAccounts));
 
                         loadTransactions();
                         refresh();
                     },
+
                 },
             ]
         );
@@ -91,30 +145,45 @@ export default function transactions() {
             <Header showIndexContent={false} showTabsContent={true} TabTitle="Transações" />
 
             <View style={styles.tabsContainer}>
-                <Pressable onPress={() => setActiveTab("receita")} style={styles.tabsContainerButton}>
-                    <MaterialIcons
-                        name="trending-up"
-                        size={28}
-                        color={activeTab === "receita" ? "#22c55e" : "#9CA3AF"}
-                    />
-                </Pressable>
 
+                {/* TODAS */}
                 <Pressable onPress={() => setActiveTab("saldo")} style={styles.tabsContainerButton}>
                     <MaterialIcons
-                        name="account-balance-wallet"
-                        size={28}
+                        name="list"
+                        size={26}
                         color={activeTab === "saldo" ? "#2563EB" : "#9CA3AF"}
                     />
                 </Pressable>
 
+                {/* RECEITAS */}
+                <Pressable onPress={() => setActiveTab("receita")} style={styles.tabsContainerButton}>
+                    <MaterialIcons
+                        name="trending-up"
+                        size={26}
+                        color={activeTab === "receita" ? "#22c55e" : "#9CA3AF"}
+                    />
+                </Pressable>
+
+                {/* DESPESAS */}
                 <Pressable onPress={() => setActiveTab("despesa")} style={styles.tabsContainerButton}>
                     <MaterialIcons
                         name="trending-down"
-                        size={28}
+                        size={26}
                         color={activeTab === "despesa" ? "#ef4444" : "#9CA3AF"}
                     />
                 </Pressable>
+
+                {/* TRANSFERÊNCIAS */}
+                <Pressable onPress={() => setActiveTab("transferencia")} style={styles.tabsContainerButton}>
+                    <MaterialIcons
+                        name="swap-horiz"
+                        size={26}
+                        color={activeTab === "transferencia" ? "#F59E0B" : "#9CA3AF"}
+                    />
+                </Pressable>
+
             </View>
+
 
             <FlatList
                 data={transactions}
@@ -128,15 +197,32 @@ export default function transactions() {
                         <View
                             style={[
                                 styles.iconContainer,
-                                item.type === "receita" ? styles.iconIncome : styles.iconExpense,
+                                item.type === "receita"
+                                    ? styles.iconIncome
+                                    : item.type === "despesa"
+                                        ? styles.iconExpense
+                                        : styles.iconTransfer
                             ]}
                         >
                             <MaterialIcons
-                                name={item.type === "receita" ? "trending-up" : "trending-down"}
+                                name={
+                                    item.type === "receita"
+                                        ? "trending-up"
+                                        : item.type === "despesa"
+                                            ? "trending-down"
+                                            : "swap-horiz"
+                                }
                                 size={22}
-                                color={item.type === "receita" ? "#16A34A" : "#DC2626"}
+                                color={
+                                    item.type === "receita"
+                                        ? "#16A34A"
+                                        : item.type === "despesa"
+                                            ? "#DC2626"
+                                            : "#F59E0B"
+                                }
                             />
                         </View>
+
 
                         <View style={styles.infoContainer}>
                             <Text style={styles.category}>{item.category}</Text>
@@ -215,6 +301,11 @@ const styles = StyleSheet.create({
     iconExpense: {
         backgroundColor: "#FEE2E2",
     },
+
+    iconTransfer: {
+    backgroundColor: "#FEF3C7",
+},
+
 
     infoContainer: {
         flex: 1,
