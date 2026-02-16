@@ -10,17 +10,10 @@ import {
     FlatList,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { IconName } from "@/app/utils/Icons";
+import { Category } from "@/app/types/Category";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
-// Tipagem
-export type Category = {
-    id: number;
-    name: string;
-    icon: IconName;
-    color: string;
-};
 
 type ModalProps = {
     visible: boolean;
@@ -33,7 +26,7 @@ type ModalProps = {
 
 // Tipos de receitas
 export const incomestypes: Category[] = [
-    { id: 101, name: "Salário", icon: "attach-money", color: "#22C55E" },
+    { id: 101, name: "Salário", icon: "attach-money", color: "#22C55E", },
     { id: 102, name: "Freelance", icon: "work", color: "#10B981" },
     { id: 103, name: "Investimentos", icon: "trending-up", color: "#3B82F6" },
     { id: 104, name: "Aluguel", icon: "home", color: "#8B5CF6" },

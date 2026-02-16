@@ -13,7 +13,7 @@ import AccountSelectInput from "./AccountSelectInput";
 import AccountSelectModal from "./AccountSelectModal";
 import CategorySelectInput from "./CategorySelectInput";
 import CategorySelectModal from "./CategorySelectModal";
-import { Category } from "./CategorySelectModal";
+import { Category } from "@/app/types/Category";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Account } from "@/app/types/Account";
@@ -304,14 +304,6 @@ const TransactionModal = ({
                       ? setIncomeValue(value)
                       : setTransferValue(value);
                 }}
-              />
-            </View>
-
-            <View style={styles.field}>
-              <Text style={styles.label}>Descrição</Text>
-              <TextInput
-                placeholder="Adicione uma mensagem (opcional"
-                style={styles.input}
               />
             </View>
 

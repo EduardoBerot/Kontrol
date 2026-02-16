@@ -15,17 +15,10 @@ import IconPickerModal from "./IconPickerModal";
 import ColorSelectInput from "./ColorSelectInput";
 import ColorPickerModal from "./ColorPickerModal";
 import { IconName } from "@/app/utils/Icons";
+import { Category } from "@/app/types/Category";
 
 
-// Tipagem
-export type Category = {
-  id: number;
-  name: string;
-  icon: IconName;
-  color: string;
-  limit: string;
-  spent: string;
-};
+
 
 type ModalProps = {
   visible: boolean;
@@ -67,7 +60,7 @@ const CategoryAddModal = ({ visible, category, onClose, onSaved, }: ModalProps) 
       setName(category.name);
       setIcon(category.icon);
       setColor(category.color);
-      setBudget(category.limit);
+      setBudget(category.limit ?? "");
     } else {
       resetFields();
     }
