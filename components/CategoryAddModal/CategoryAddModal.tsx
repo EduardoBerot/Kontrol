@@ -1,3 +1,7 @@
+import { Category } from "@/types/Category";
+import { IconName } from "@/utils/Icons";
+import { MaterialIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -8,14 +12,10 @@ import {
   View,
 } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
-import { MaterialIcons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import IconSelectInput from "./IconSelectInput";
-import IconPickerModal from "./IconPickerModal";
-import ColorSelectInput from "./ColorSelectInput";
 import ColorPickerModal from "./ColorPickerModal";
-import { IconName } from "@/app/utils/Icons";
-import { Category } from "@/app/types/Category";
+import ColorSelectInput from "./ColorSelectInput";
+import IconPickerModal from "./IconPickerModal";
+import IconSelectInput from "./IconSelectInput";
 
 
 

@@ -1,4 +1,4 @@
-import { BankKey } from "@/app/utils/BanksLogo";
+import { BankKey } from "@/utils/BanksLogo";
 
 export type Account = {
   id: string;
@@ -7,3 +7,4 @@ export type Account = {
   balance: number;
   onEdit?: () => void;
 };
+

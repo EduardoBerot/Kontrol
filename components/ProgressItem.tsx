@@ -1,8 +1,8 @@
-import { Text, View, StyleSheet } from "react-native";
 import { MaterialIcons } from '@expo/vector-icons';
-import { globalStyles } from "../styles/global";
+import { StyleSheet, Text, View } from "react-native";
 import * as Progress from 'react-native-progress';
-import { formatCurrency } from "../utils/FormatCurrency";
+import globalStyles from '@/styles/global';
+import formatCurrency from '@/utils/FormatCurrency';
 
 // Tipagem
 type ProgressItemProps = {

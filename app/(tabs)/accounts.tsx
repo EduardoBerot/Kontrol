@@ -4,12 +4,12 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import DraggableFlatList from "react-native-draggable-flatlist";
-import AccountAddModal from "../components/AccountAddModal/AccountAddModal";
-import AccountRender from "../components/AccountRender";
-import Header from "../components/Header/Header";
-import { globalStyles } from "../styles/global";
-import { Account } from "../types/Account";
-import { useTransactionsContext } from "../context/TransactionContext";
+import { useTransactionsContext } from "../../context/TransactionContext";
+import { globalStyles } from "../../styles/global";
+import { Account } from "../../types/Account";
+import AccountAddModal from "../../components/AccountAddModal/AccountAddModal";
+import AccountRender from "@/components/AccountRender";
+import Header from "@/components/Header";
 
 
 const accounts = () => {

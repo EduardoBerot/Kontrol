@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from "react";
-import { Animated, Modal, Pressable, StyleSheet, Text, View, TextInput } from "react-native";
+import { Account } from "@/types/Account";
+import { BankKey } from "@/utils/BanksLogo";
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useRef, useState } from "react";
+import { Animated, Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import AccountIconPickerModal from "./AccountIconPickerModal";
 import AccountIconSelectInput from "./AccountIconSelectInput";
-import { BankKey } from "@/app/utils/BanksLogo";
-import { Account } from "@/app/types/Account";
 
 
 

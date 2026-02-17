@@ -1,3 +1,8 @@
+import { Category } from "@/types/Category";
+import { Account } from "@/types/Account";
+import { MaterialIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -8,15 +13,10 @@ import {
   View,
 } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
-import { MaterialIcons } from "@expo/vector-icons";
 import AccountSelectInput from "./AccountSelectInput";
 import AccountSelectModal from "./AccountSelectModal";
 import CategorySelectInput from "./CategorySelectInput";
 import CategorySelectModal from "./CategorySelectModal";
-import { Category } from "@/app/types/Category";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Account } from "@/app/types/Account";
 
 // Tipagem
 type ModalProps = {

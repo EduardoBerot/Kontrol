@@ -1,14 +1,13 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useFocusEffect } from '@react-navigation/native';
-import { useCallback } from 'react';
-import { useState } from "react";
-import { Pressable, StyleSheet, Text, View, } from "react-native";
-import CategoryAddModal from "../components/CategoryAddModal/CategoryAddModal";
-import CategoryRender from "../components/CategoryRender";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Header from "../components/Header/Header";
-import { globalStyles } from "../styles/global";
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback, useState } from 'react';
+import { Pressable, StyleSheet, Text, View, } from "react-native";
 import DraggableFlatList from "react-native-draggable-flatlist";
+import { globalStyles } from "../../styles/global";
+import CategoryAddModal from "../../components/CategoryAddModal/CategoryAddModal";
+import CategoryRender from "@/components/CategoryRender";
+import Header from "@/components/Header";
 
 // Tipagem
 type Category = {

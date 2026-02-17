@@ -1,9 +1,9 @@
-import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
+import { Account } from "@/types/Account";
+import BanksLogo from "@/utils/BanksLogo";
 import { MaterialIcons } from "@expo/vector-icons";
-import { globalStyles } from "../styles/global";
-import BanksLogo from "@/app/utils/BanksLogo";
-import { Account } from "../types/Account";
-import formatCurrency from "../utils/FormatCurrency";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import globalStyles from "@/styles/global";
+import formatCurrency from "@/utils/FormatCurrency";
 
 
 

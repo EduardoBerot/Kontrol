@@ -1,19 +1,19 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { Account } from "@/types/Account";
+import BanksLogo from "@/utils/BanksLogo";
+import { MaterialIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
     Animated,
+    FlatList,
+    Image,
     Modal,
     Pressable,
     StyleSheet,
     Text,
-    View,
-    FlatList,
-    Image
+    View
 } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Account } from "@/app/types/Account";
-import BanksLogo from "@/app/utils/BanksLogo";
 
 
 type ModalProps = {

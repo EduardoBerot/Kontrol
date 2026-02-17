@@ -1,19 +1,16 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRef, useState } from "react";
-import { useRouter } from "expo-router";
-import { Animated, Pressable, ScrollView, StyleSheet, Text, View, Modal } from "react-native";
-import { StatusBar } from 'expo-status-bar';
-import Header from "../components/Header/Header";
-import InfoBox from "../components/InfoBox";
-import ProgressItem from "../components/ProgressItem";
-import TransactionModal from "../components/TransactionModal/TransactionModal"
-import { globalStyles } from "../styles/global"
-import { Transaction } from '../components/TransactionModal/TransactionModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { formatCurrency } from "../utils/FormatCurrency";
-import { useFocusEffect } from "expo-router";
-import { useCallback } from "react";
-import { Account } from '../types/Account';
+import { useFocusEffect, useRouter } from "expo-router";
+import { StatusBar } from 'expo-status-bar';
+import { useCallback, useRef, useState } from "react";
+import { Animated, Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import TransactionModal, { Transaction } from "../../components/TransactionModal/TransactionModal";
+import { globalStyles } from "../../styles/global";
+import { Account } from '../../types/Account';
+import { formatCurrency } from "../../utils/FormatCurrency";
+import Header from '@/components/Header';
+import InfoBox from '@/components/InfoBox';
+import ProgressItem from '@/components/ProgressItem';
 
 
 
@@ -50,101 +47,105 @@ const Index = () => {
 
 
   // Lê dados filtrando por mês e ano vindos do Header
- const readData = async () => {
-  try {
-    // Pega os dados do Async Storage
-    const storedCategories = await AsyncStorage.getItem('categories');
-    const storedTransactions = await AsyncStorage.getItem('transactions');
-    const storedBalanceAccounts = await AsyncStorage.getItem("balanceAccounts");
-    const storedAccounts = await AsyncStorage.getItem("accounts");
+  const readData = async () => {
+    try {
+      // Pega os dados do Async Storage
+      const storedCategories = await AsyncStorage.getItem('categories');
+      const storedTransactions = await AsyncStorage.getItem('transactions');
+      const storedBalanceAccounts = await AsyncStorage.getItem("balanceAccounts");
+      const storedAccounts = await AsyncStorage.getItem("accounts");
 
-    // Parse dos dados
-    const categoriesFromStorage: Category[] = storedCategories
-      ? JSON.parse(storedCategories)
-      : [];
+      // Parse dos dados
+      const categoriesFromStorage: Category[] = storedCategories
+        ? JSON.parse(storedCategories)
+        : [];
 
-    const transactionsFromStorage: Transaction[] = storedTransactions
-      ? JSON.parse(storedTransactions)
-      : [];
+      const transactionsFromStorage: Transaction[] = storedTransactions
+        ? JSON.parse(storedTransactions)
+        : [];
 
-    const selectedAccounts: string[] = storedBalanceAccounts
-      ? JSON.parse(storedBalanceAccounts)
-      : [];
+      const selectedAccounts: string[] = storedBalanceAccounts
+        ? JSON.parse(storedBalanceAccounts)
+        : [];
 
-    const accountsFromStorage: Account[] = storedAccounts
-      ? JSON.parse(storedAccounts)
-      : [];
+      const accountsFromStorage: Account[] = storedAccounts
+        ? JSON.parse(storedAccounts)
+        : [];
 
-    // Identifica o período selecionado
-    const isInSelectedPeriod = (dateString: string) => {
-      const date = new Date(dateString);
-      return (
-        date.getMonth() === selectedMonth &&
-        date.getFullYear() === selectedYear
+      // Identifica o período selecionado
+      const isInSelectedPeriod = (dateString: string) => {
+        const date = new Date(dateString);
+        return (
+          date.getMonth() === selectedMonth &&
+          date.getFullYear() === selectedYear
+        );
+      };
+
+      // Transações no período
+      const transactionsInPeriod = transactionsFromStorage.filter(t =>
+        isInSelectedPeriod(t.date)
       );
-    };
 
-    // Transações no período
-    const transactionsInPeriod = transactionsFromStorage.filter(t =>
-      isInSelectedPeriod(t.date)
-    );
+      // Receita e despesa (mantive como estava)
+      const incomeTransactions =
+        transactionsInPeriod.filter(t => t.type === "receita");
 
-    // Receita e despesa (mantive como estava)
-    const incomeTransactions =
-      transactionsInPeriod.filter(t => t.type === "receita");
+      const expenseTransactions =
+        transactionsInPeriod.filter(t => t.type === "despesa");
 
-    const expenseTransactions =
-      transactionsInPeriod.filter(t => t.type === "despesa");
+      const totalIncome = incomeTransactions.reduce(
+        (sum, { value }) => sum + value,
+        0
+      );
 
-    const totalIncome = incomeTransactions.reduce(
-      (sum, { value }) => sum + value,
-      0
-    );
+      const totalExpense = expenseTransactions.reduce(
+        (sum, { value }) => sum + value,
+        0
+      );
 
-    const totalExpense = expenseTransactions.reduce(
-      (sum, { value }) => sum + value,
-      0
-    );
+      setTotalIncomes(totalIncome);
+      setTotalExpenses(totalExpense);
+      setBalanceAccounts(selectedAccounts);
+      setAccounts(accountsFromStorage);
 
-    setTotalIncomes(totalIncome);
-    setTotalExpenses(totalExpense);
-    setBalanceAccounts(selectedAccounts);
-    setAccounts(accountsFromStorage);
-
-    // ✅ NOVO — saldo total baseado nas contas selecionadas
-    const accountsFilteredBySelection =
-      selectedAccounts.length === 0
-        ? accountsFromStorage
-        : accountsFromStorage.filter(acc =>
+      // ✅ NOVO — saldo total baseado nas contas selecionadas
+      const accountsFilteredBySelection =
+        selectedAccounts.length === 0
+          ? accountsFromStorage
+          : accountsFromStorage.filter(acc =>
             selectedAccounts.includes(acc.id)
           );
 
-    const totalBalance = accountsFilteredBySelection.reduce(
-      (sum, acc) => sum + (acc.balance ?? 0),
-      0
-    );
 
-    setTotalBalance(totalBalance);
+      const hasAnyAccount = accountsFromStorage.length > 0;
+      const hasFilteredAccounts = accountsFilteredBySelection.length > 0;
 
-    // Categorias com gasto
-    const categoriesWithSpent = categoriesFromStorage.map(category => {
-      const spentInCategory = transactionsInPeriod
-        .filter(t => t.type === "despesa")
-        .filter(t => t.category === category.name)
-        .reduce((sum, { value }) => sum + value, 0);
+      const totalBalance = accountsFilteredBySelection.reduce(
+        (sum, acc) => sum + (acc.balance ?? 0),
+        0
+      );
 
-      return {
-        ...category,
-        spent: spentInCategory
-      };
-    });
+      setTotalBalance(totalBalance);
 
-    setCategories(categoriesWithSpent);
+      // Categorias com gasto
+      const categoriesWithSpent = categoriesFromStorage.map(category => {
+        const spentInCategory = transactionsInPeriod
+          .filter(t => t.type === "despesa")
+          .filter(t => t.category === category.name)
+          .reduce((sum, { value }) => sum + value, 0);
 
-  } catch (error) {
-    console.log("Problemas ao ler os dados", error);
-  }
-};
+        return {
+          ...category,
+          spent: spentInCategory
+        };
+      });
+
+      setCategories(categoriesWithSpent);
+
+    } catch (error) {
+      console.log("Problemas ao ler os dados", error);
+    }
+  };
 
 
   // Carregar dados pelo hook
@@ -219,6 +220,17 @@ const Index = () => {
   };
 
 
+  const accountsFilteredBySelection =
+    balanceAccounts.length === 0
+      ? accounts
+      : accounts.filter(acc =>
+        balanceAccounts.includes(acc.id)
+      );
+
+  const hasAnyAccount = accounts.length > 0;
+  const hasFilteredAccounts = accountsFilteredBySelection.length > 0;
+
+
   // Render
   return (
     <View style={{ flex: 1 }}>
@@ -241,18 +253,47 @@ const Index = () => {
         <View style={globalStyles.indexcontent}>
           <View style={[globalStyles.contentbox, globalStyles.itemscenter]}>
 
-            <Pressable onPress={() => setEditBalanceModal(true)} style={{ position: 'absolute', top: 10, right: 10 }}>
-              <MaterialIcons name='edit' size={22} />
-            </Pressable>
+            {hasAnyAccount && (
+              <Pressable
+                onPress={() => setEditBalanceModal(true)}
+                style={{ position: 'absolute', top: 10, right: 10 }}
+              >
+                <MaterialIcons name='edit' size={22} />
+              </Pressable>
+            )}
 
 
             <Pressable
-              onPress={() => router.push("/(tabs)/transactions?filter=saldo")}
+              onPress={() =>
+                router.push(
+                  hasAnyAccount
+                    ? "/(tabs)/transactions?filter=saldo"
+                    : "/(tabs)/accounts"
+                )
+              }
             >
-              <Text style={globalStyles.title}>
-                {formatCurrency(totalBalance)}
-              </Text>
+
+              <View style={[globalStyles.row, globalStyles.itemscenter]}>
+                <Text
+                  style={[
+                    !hasAnyAccount || !hasFilteredAccounts
+                      ? [globalStyles.text, { marginVertical: 12 }]
+                      : globalStyles.title
+
+                  ]}
+                >
+                  {!hasAnyAccount
+                    ? "Clique para criar contas"
+                    : !hasFilteredAccounts
+                      ? "Nenhuma conta selecionada"
+                      : formatCurrency(totalBalance)}
+                </Text>
+                {!hasAnyAccount && (
+                  <MaterialIcons name='chevron-right' size={22} />
+                )}
+              </View>
             </Pressable>
+
 
 
             <View style={globalStyles.row}>
@@ -337,18 +378,41 @@ const Index = () => {
           <View style={globalStyles.contentbox}>
             <Text style={[globalStyles.text, { textAlign: "center", marginBottom: 18 }]}>Orçamento</Text>
 
-            {categories
-              .filter(item => Number(item.limit) > 0)
-              .map(item => (
-                <ProgressItem
-                  key={item.id}
-                  icon={item.icon}
-                  color={item.color}
-                  label={item.name}
-                  limit={formatCurrency(item.limit)}
-                  spent={formatCurrency(item.spent)}
-                />
-              ))}
+            {categories.filter(item => Number(item.limit) > 0).length === 0 ? (
+
+              <View style={globalStyles.itemscenter}>
+
+                <Text style={globalStyles.mintitle}>
+                  Você ainda não criou nenhuma categoria ou não definiu orçamento para elas, crie ou edite clicando abaixo:
+                </Text>
+
+                <View style={[globalStyles.itemscenter, globalStyles.row]}>
+
+                  <Text style={[globalStyles.text, { marginVertical: 20 }]} onPress={() => router.push("/categories")}>
+                    Criar ou editar categorias
+                  </Text>
+                  <MaterialIcons name='chevron-right' size={22} />
+
+                </View>
+
+              </View>
+
+
+            ) : (
+              categories
+                .filter(item => Number(item.limit) > 0)
+                .map(item => (
+                  <ProgressItem
+                    key={item.id}
+                    icon={item.icon}
+                    color={item.color}
+                    label={item.name}
+                    limit={formatCurrency(item.limit)}
+                    spent={formatCurrency(item.spent)}
+                  />
+                ))
+            )}
+
           </View>
         </View>
       </ScrollView>

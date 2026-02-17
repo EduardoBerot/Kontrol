@@ -1,7 +1,7 @@
-import { Text, Pressable, StyleSheet, View, Image } from "react-native";
+import { Account } from "@/types/Account";
+import BanksLogo from "@/utils/BanksLogo";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Account } from "@/app/types/Account";
-import BanksLogo from "@/app/utils/BanksLogo";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 
 // Tipagem

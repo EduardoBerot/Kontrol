@@ -1,7 +1,7 @@
-import { Text, Pressable, StyleSheet, Image } from "react-native";
+import globalStyles from "@/styles/global";
+import BanksLogo, { BankKey } from "@/utils/BanksLogo";
 import { MaterialIcons } from "@expo/vector-icons";
-import BanksLogo, { BankKey } from "@/app/utils/BanksLogo";
-import globalStyles from "@/app/styles/global";
+import { Image, Pressable, StyleSheet, Text } from "react-native";
 
 // Tipagem
 type Props = {

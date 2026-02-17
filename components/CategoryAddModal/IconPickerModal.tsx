@@ -1,23 +1,18 @@
-import { Modal, Pressable, FlatList, StyleSheet, Image, View, Text } from "react-native";
+import globalStyles from "@/styles/global";
+import { IconName, Icons } from "@/utils/Icons";
 import { MaterialIcons } from "@expo/vector-icons";
-import BanksLogo, { BankKey } from "@/app/utils/BanksLogo";
-import globalStyles from "@/app/styles/global";
-
+import { FlatList, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
 // Tipagem
 type Props = {
   visible: boolean;
+  color: string;
   onClose: () => void;
-  onSelect: (bank: BankKey) => void;
+  onSelect: (icon: IconName) => void;
 };
 
-// Icone dos bancos
-const banks = Object.keys(BanksLogo) as BankKey[];
+const IconPickerModal = ({ visible, color, onClose, onSelect }: Props) => {
 
-
-const AccountIconPickerModal = ({ visible, onClose, onSelect }: Props) => {
-
-  // Render
   return (
     <Modal
       visible={visible}
@@ -25,10 +20,11 @@ const AccountIconPickerModal = ({ visible, onClose, onSelect }: Props) => {
       animationType="fade"
       onRequestClose={onClose}
     >
+
       <Pressable style={styles.overlay} onPress={onClose}>
 
-        <Pressable style={styles.container}>
-          
+        <Pressable style={styles.container} onPress={() => { }}>
+
           <View style={[globalStyles.row, globalStyles.spacebetween, globalStyles.itemscenter]}>
             <Text>Selecione um ícone</Text>
             <Pressable onPress={onClose}>
@@ -36,12 +32,14 @@ const AccountIconPickerModal = ({ visible, onClose, onSelect }: Props) => {
             </Pressable>
           </View>
 
+
           <FlatList
-            data={banks}
+            data={Icons}
             numColumns={4}
-            keyExtractor={item => item}
+            keyExtractor={(item) => item}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.listContent}
+            style={styles.list}
             renderItem={({ item }) => (
               <Pressable
                 style={styles.icon}
@@ -50,21 +48,19 @@ const AccountIconPickerModal = ({ visible, onClose, onSelect }: Props) => {
                   onClose();
                 }}
               >
-                <Image
-                  source={BanksLogo[item]}
-                  resizeMode="contain"
-                  style={styles.logo}
-                />
+                <MaterialIcons name={item} color={color} size={28} />
               </Pressable>
             )}
           />
+
+
         </Pressable>
       </Pressable>
     </Modal>
   );
-};
+}
 
-export default AccountIconPickerModal;
+export default IconPickerModal
 
 const styles = StyleSheet.create({
   overlay: {
@@ -79,14 +75,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     width: "80%",
-    maxHeight: "60%",
+    maxHeight: "60%", // 🔹 controla o tamanho do modal
   },
 
-  closeButton: {
-    position: "absolute",
-    top: 8,
-    right: 8,
-    zIndex: 1,
+  list: {
+    maxHeight: "100%", // 🔹 FlatList respeita o container
   },
 
   listContent: {
@@ -94,15 +87,8 @@ const styles = StyleSheet.create({
   },
 
   icon: {
-    flex: 1,
     padding: 12,
     alignItems: "center",
-  },
-
-  logo: {
-    width: 36,
-    height: 36,
-    borderRadius: 36,
-    padding: 20
+    flex: 1,
   },
 });

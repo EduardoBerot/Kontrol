@@ -1,8 +1,8 @@
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { MaterialIcons } from "@expo/vector-icons";
 import { Drawer } from "expo-router/drawer";
 import { StyleSheet } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
-import { TransactionsProvider } from "../context/TransactionContext";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { TransactionsProvider } from "@/context/TransactionContext";
 
 export default function RootLayout() {
   return (

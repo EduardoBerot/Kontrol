@@ -1,3 +1,5 @@
+import { globalStyles } from "@/styles/global";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -8,9 +10,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
 import ColorPicker from "react-native-wheel-color-picker";
-import { globalStyles } from "@/app/styles/global";
 
 // Tipagem
 type Props = {

@@ -1,6 +1,6 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { globalStyles } from "../styles/global";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import globalStyles from "@/styles/global";
 
 // Tipagem
 type CategoryRenderProps = {

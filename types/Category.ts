@@ -1,4 +1,4 @@
-import { IconName } from "@/app/utils/Icons";
+import { IconName } from "@/utils/Icons";
 
 export type Category = {
   id: number;
@@ -8,4 +8,3 @@ export type Category = {
   limit?: string;
   spent?: string;
 };
-

@@ -1,6 +1,6 @@
-import { Text, Pressable, StyleSheet, View } from "react-native";
+import { Category } from "@/types/Category";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Category } from "@/app/types/Category";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 
 // Tipagem

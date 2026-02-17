@@ -1,5 +1,5 @@
-import { Text, View, StyleSheet } from "react-native";
-import { globalStyles } from "../styles/global";
+import { StyleSheet, Text, View } from "react-native";
+import globalStyles from "@/styles/global";
 
 // Tipagem
 type InfoBoxProps = {

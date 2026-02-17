@@ -1,17 +1,17 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { Category } from "@/types/Category";
+import { MaterialIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
     Animated,
+    FlatList,
     Modal,
     Pressable,
     StyleSheet,
     Text,
     View,
-    FlatList,
 } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
-import { Category } from "@/app/types/Category";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 
