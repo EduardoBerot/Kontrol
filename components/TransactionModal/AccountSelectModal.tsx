@@ -1,33 +1,20 @@
+import { Animated, FlatList, Image, Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Account } from "@/types/Account";
 import BanksLogo from "@/utils/BanksLogo";
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-    Animated,
-    FlatList,
-    Image,
-    Modal,
-    Pressable,
-    StyleSheet,
-    Text,
-    View
-} from "react-native";
 
 
+// Tipagem
 type ModalProps = {
     visible: boolean;
     onClose: () => void;
     onSelect: (account: Account) => void;
 };
 
-
-
-
 const AccountSelectModal = ({ visible, onClose, onSelect }: ModalProps) => {
-
-
     // Hooks
     const translateY = useRef(new Animated.Value(400)).current;
     const [accounts, setAccounts] = useState<Account[]>([]);
@@ -62,7 +49,7 @@ const AccountSelectModal = ({ visible, onClose, onSelect }: ModalProps) => {
     }, [visible]);
 
 
-
+    // Render
     return (
         <Modal transparent visible={visible} animationType="none">
             <View style={{ flex: 1 }}>
@@ -126,8 +113,6 @@ const AccountSelectModal = ({ visible, onClose, onSelect }: ModalProps) => {
     );
 };
 
-export default AccountSelectModal;
-
 const styles = StyleSheet.create({
     backdrop: {
         flex: 1,
@@ -183,3 +168,5 @@ const styles = StyleSheet.create({
         padding: 10
     },
 });
+
+export default AccountSelectModal;

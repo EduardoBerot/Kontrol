@@ -1,7 +1,7 @@
+import { Image, Pressable, StyleSheet, Text } from "react-native";
 import globalStyles from "@/styles/global";
 import BanksLogo, { BankKey } from "@/utils/BanksLogo";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Image, Pressable, StyleSheet, Text } from "react-native";
 
 // Tipagem
 type Props = {
@@ -29,8 +29,6 @@ const AccountIconSelectInput = ({ value, onPress }: Props) => {
   );
 };
 
-export default AccountIconSelectInput;
-
 const styles = StyleSheet.create({
   input: {
     height: 48,
@@ -50,3 +48,5 @@ const styles = StyleSheet.create({
     borderRadius: 28
   },
 });
+
+export default AccountIconSelectInput;

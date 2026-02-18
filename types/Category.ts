@@ -5,6 +5,6 @@ export type Category = {
   name: string;
   icon: IconName;
   color: string;
-  limit?: string;
-  spent?: string;
+  limit?: number;
+  spent?: number;
 };

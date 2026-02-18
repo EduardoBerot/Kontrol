@@ -9,6 +9,8 @@ type InfoBoxProps = {
 };
 
 const InfoBox = ({ label, color, value }: InfoBoxProps) => {
+    
+    // Render
     return (
         <View style={[styles.contentboxinfo, globalStyles.itemscenter]}>
             <Text style={globalStyles.mintext}>{label}</Text>
@@ -17,10 +19,10 @@ const InfoBox = ({ label, color, value }: InfoBoxProps) => {
     )
 }
 
-export default InfoBox
-
 const styles = StyleSheet.create({
   contentboxinfo: {
     flex: 1
   },
 });
+
+export default InfoBox

@@ -1,20 +1,12 @@
+import { Animated, FlatList, Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Category } from "@/types/Category";
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-    Animated,
-    FlatList,
-    Modal,
-    Pressable,
-    StyleSheet,
-    Text,
-    View,
-} from "react-native";
 
 
-
+// Tipagem
 type ModalProps = {
     visible: boolean;
     type: "despesa" | "receita" | null;
@@ -38,7 +30,6 @@ export const incomestypes: Category[] = [
 
 
 const CategorySelectModal = ({ visible, type, onClose, onSelect }: ModalProps) => {
-
     // Hooks
     const translateY = useRef(new Animated.Value(400)).current;
     const [categories, setCategories] = useState<Category[]>([]);
@@ -73,7 +64,7 @@ const CategorySelectModal = ({ visible, type, onClose, onSelect }: ModalProps) =
     }, [visible]);
 
 
-
+    // Render
     return (
         <Modal transparent visible={visible} animationType="none">
             <View style={{ flex: 1 }}>
@@ -130,14 +121,12 @@ const CategorySelectModal = ({ visible, type, onClose, onSelect }: ModalProps) =
 
                 </Animated.View>
 
-                
+
             </View>
         </Modal>
 
     );
 };
-
-export default CategorySelectModal;
 
 const styles = StyleSheet.create({
     backdrop: {
@@ -187,3 +176,5 @@ const styles = StyleSheet.create({
         fontSize: 15,
     },
 });
+
+export default CategorySelectModal;

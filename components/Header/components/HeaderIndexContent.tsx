@@ -2,14 +2,10 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useState, useEffect } from 'react';
 import { Modal, Text, StyleSheet, Pressable, View, FlatList } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import { Transaction } from '@/types/Transaction';
 
 
 // Tipagem
-type Transaction = {
-  date: string;
-};
-
 type Props = {
   month: number;
   year: number;
@@ -37,7 +33,6 @@ const HeaderIndexContent = ({ month, year, onChangePeriod }: Props) => {
     setSelectedYear(year);
   }, [month, year]);
 
-
   // Carrega meses que possuem lançamentos no ano selecionado
   const loadAvailableMonths = async (selectedYear: number) => {
     try {
@@ -61,7 +56,6 @@ const HeaderIndexContent = ({ month, year, onChangePeriod }: Props) => {
     }
   };
 
-
   // Sempre que abrir o modal ou trocar o ano, recarrega os meses válidos
   useEffect(() => {
     if (visible) {
@@ -70,6 +64,7 @@ const HeaderIndexContent = ({ month, year, onChangePeriod }: Props) => {
   }, [visible, selectedYear]);
 
 
+  // Seleção de mês e ano
   const onSelectMonth = (index: number) => {
     setSelectedMonth(index);
     onChangePeriod(index, selectedYear); 
@@ -102,7 +97,7 @@ const HeaderIndexContent = ({ month, year, onChangePeriod }: Props) => {
         <Pressable onPress={() => setVisible(false)} style={styles.overlay}>
           <View style={styles.modal}>
 
-            {/* Controle de ano */}
+
             <View style={styles.yearControl}>
               <Pressable onPress={() => changeYear(-1)}>
                 <MaterialIcons name="chevron-left" size={28} />
@@ -115,7 +110,7 @@ const HeaderIndexContent = ({ month, year, onChangePeriod }: Props) => {
               </Pressable>
             </View>
 
-            {/* 🔹 Meses disponíveis no ano */}
+
             <FlatList
               data={availableMonths.map(index => ({
                 index,
@@ -157,8 +152,6 @@ const HeaderIndexContent = ({ month, year, onChangePeriod }: Props) => {
   );
 };
 
-export default HeaderIndexContent;
-
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
@@ -183,16 +176,16 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   monthItem: {
-    width: "30%",          // largura fixa para formar 3 colunas reais
+    width: "30%",
     paddingVertical: 10,
     borderRadius: 8,
-    alignItems: "center", // botão alinhado certinho
+    alignItems: "center",
     justifyContent: "center",
   },
 
   monthText: {
     fontSize: 14,
-    textAlign: "center",  // texto centralizado
+    textAlign: "center", 
   },
 
 
@@ -204,3 +197,5 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 });
+
+export default HeaderIndexContent;

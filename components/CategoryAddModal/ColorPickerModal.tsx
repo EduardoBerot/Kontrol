@@ -1,15 +1,7 @@
+import { Animated, Easing, Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
 import { globalStyles } from "@/styles/global";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useEffect, useRef, useState } from "react";
-import {
-  Animated,
-  Easing,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
 import ColorPicker from "react-native-wheel-color-picker";
 
 // Tipagem
@@ -20,23 +12,19 @@ type Props = {
   onSelect: (color: string) => void;
 };
 
-const ColorPickerModal = ({
-  visible,
-  initialColor = "#3B82F6",
-  onClose,
-  onSelect,
-}: Props) => {
+const ColorPickerModal = ({ visible, initialColor = "#3B82F6", onClose, onSelect }: Props) => {
 
   // Hooks
   const [color, setColor] = useState(initialColor);
   const translateY = useRef(new Animated.Value(320)).current;
 
 
-  // Functions
+  // Define cor padrão
   useEffect(() => {
     setColor(initialColor);
   }, [initialColor, visible]);
 
+  // Animações de abrir e fechar modal
   useEffect(() => {
     if (visible) {
       Animated.timing(translateY, {
@@ -50,7 +38,6 @@ const ColorPickerModal = ({
     }
   }, [visible]);
 
-  // Abrir modal
   function handleClose() {
     Animated.timing(translateY, {
       toValue: 320,
@@ -60,6 +47,8 @@ const ColorPickerModal = ({
     }).start(onClose);
   }
 
+
+  // Render
   return (
     <Modal
       visible={visible}
@@ -118,8 +107,6 @@ const ColorPickerModal = ({
   );
 }
 
-export default ColorPickerModal
-
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
@@ -169,3 +156,5 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
 });
+
+export default ColorPickerModal

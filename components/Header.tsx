@@ -1,11 +1,12 @@
+import { StyleSheet, View } from "react-native";
 import { MaterialIcons } from '@expo/vector-icons';
 import { DrawerActions } from "@react-navigation/native";
 import { useNavigation } from "expo-router";
-import { StyleSheet, View } from "react-native";
 import globalStyles from '@/styles/global';
 import HeaderIndexContent from './Header/components/HeaderIndexContent';
 import HeaderTabsContent from './Header/components/HeaderTabsContent';
 
+// Tipagem
 type HeaderProps = {
     showIndexContent: boolean;
     showTabsContent: boolean;
@@ -15,31 +16,20 @@ type HeaderProps = {
     onChangePeriod?: (month: number, year: number) => void;
 };
 
-const Header = ({
-    showIndexContent = true,
-    showTabsContent = false,
-    TabTitle,
-    month,
-    year,
-    onChangePeriod
 
-}: HeaderProps) => {
-
+const Header = ({ showIndexContent = true, showTabsContent = false, TabTitle, month, year, onChangePeriod}: HeaderProps) => {
+    // Hooks
     const navigation = useNavigation();
 
+    // Abrir menu lateral (drawer)
     const openDrawer = () => {
         navigation.dispatch(DrawerActions.openDrawer());
     };
 
+    // Render
     return (
-        <View
-            style={[
-                styles.header,
-                globalStyles.row,
-                globalStyles.itemscenter,
-                globalStyles.spacebetween
-            ]}
-        >
+        <View style={[styles.header, globalStyles.row, globalStyles.itemscenter, globalStyles.spacebetween]}>
+
             {showIndexContent && (
                 <HeaderIndexContent
                     month={month!}
@@ -49,18 +39,16 @@ const Header = ({
             )}
 
             {showTabsContent && <HeaderTabsContent TabTittle={TabTitle} />}
-
             <MaterialIcons
                 onPress={openDrawer}
                 name="menu"
                 size={30}
                 color="#fff"
             />
+
         </View>
     );
 }
-
-export default Header;
 
 const styles = StyleSheet.create({
     header: {
@@ -69,3 +57,5 @@ const styles = StyleSheet.create({
         padding: 20,
     }
 });
+
+export default Header;

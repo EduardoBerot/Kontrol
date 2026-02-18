@@ -9,6 +9,8 @@ type Props = {
 };
 
 const IconSelectInput = ({ value, color, onPress }: Props) => {
+    
+    // Render
     return (
         <>
             <Pressable style={styles.input} onPress={onPress}>
@@ -24,8 +26,6 @@ const IconSelectInput = ({ value, color, onPress }: Props) => {
 
     );
 }
-
-export default IconSelectInput
 
 const styles = StyleSheet.create({
     input: {
@@ -44,3 +44,5 @@ const styles = StyleSheet.create({
         color: "#999",
     },
 });
+
+export default IconSelectInput

@@ -1,5 +1,5 @@
-import { MaterialIcons } from "@expo/vector-icons";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 import globalStyles from "@/styles/global";
 
 // Tipagem
@@ -11,7 +11,6 @@ type CategoryRenderProps = {
 };
 
 const CategoryRender = ({ title, icon, color, onEdit }: CategoryRenderProps) => {
-
     // Render
     return (
         <View style={styles.categoryitem}>
@@ -28,9 +27,7 @@ const CategoryRender = ({ title, icon, color, onEdit }: CategoryRenderProps) => 
     );
 }
 
-export default CategoryRender
-
-const styles = StyleSheet.create ({
+const styles = StyleSheet.create({
     categoryitem: {
         flexDirection: "row",
         alignItems: "center",
@@ -38,5 +35,7 @@ const styles = StyleSheet.create ({
         borderBottomColor: "#eee",
         borderBottomWidth: 1,
         paddingVertical: 10
-  }
+    }
 })
+
+export default CategoryRender

@@ -1,20 +1,21 @@
+import { Alert, FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { useLocalSearchParams } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useLocalSearchParams } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
-import { Alert, FlatList, Pressable, StyleSheet, Text, View } from "react-native";
-import { Transaction } from "../../components/TransactionModal/TransactionModal";
+import { Transaction } from "@/types/Transaction";
 import { useTransactionsContext } from "../../context/TransactionContext";
 import { globalStyles } from "../../styles/global";
 import { formatCurrency } from "../../utils/FormatCurrency";
 import Header from "@/components/Header";
+import { Account } from "@/types/Account";
 
-
+// Define os possiveis filtros de transações
 type FilterType = "receita" | "despesa" | "transferencia" | "saldo";
 
 
 export default function transactions() {
-
+    
     // Hooks
     const { filter } = useLocalSearchParams<{ filter?: FilterType }>();
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -23,24 +24,21 @@ export default function transactions() {
 
     // Função para carregar transações
     const loadTransactions = useCallback(async () => {
-
-        // Pega os dados do AsyncStorage e realiza o parse
         const stored = await AsyncStorage.getItem("transactions");
         const parsed: Transaction[] = stored ? JSON.parse(stored) : [];
-
         // Ordena pela data mais recente
         const sorted = [...parsed].sort(
             (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
         );
 
-
         if (activeTab === "saldo") {
             setTransactions(sorted);
             return;
         }
-
         setTransactions(sorted.filter(t => t.type === activeTab));
     }, [activeTab]);
+
+
 
     useEffect(() => {
         loadTransactions();
@@ -54,6 +52,26 @@ export default function transactions() {
     }, [filter]);
 
 
+    // Captura os valores do AsyncStorage
+    const getTransactions = async (): Promise<Transaction[]> => {
+        const data = await AsyncStorage.getItem("transactions");
+        return data ? JSON.parse(data) : [];
+    };
+
+    const saveTransactions = async (transactions: Transaction[]) => {
+        await AsyncStorage.setItem("transactions", JSON.stringify(transactions));
+    };
+
+    const getAccounts = async (): Promise<Account[]> => {
+        const data = await AsyncStorage.getItem("accounts");
+        return data ? JSON.parse(data) : [];
+    };
+
+    const saveAccounts = async (accounts: Account[]) => {
+        await AsyncStorage.setItem("accounts", JSON.stringify(accounts));
+    };
+
+
     // Remover transação
     const handleDelete = (id: string) => {
         Alert.alert(
@@ -64,74 +82,66 @@ export default function transactions() {
                 {
                     text: "Excluir",
                     style: "destructive",
-                    onPress: async () => {
-                        const storedTransactions = await AsyncStorage.getItem("transactions");
-                        const parsedTransactions: Transaction[] = storedTransactions
-                            ? JSON.parse(storedTransactions)
-                            : [];
-
-                        const transactionToDelete = parsedTransactions.find(t => t.id === id);
-
-                        if (!transactionToDelete) return;
-
-                        // REMOVE DA LISTA
-                        const updatedTransactions = parsedTransactions.filter(t => t.id !== id);
-                        await AsyncStorage.setItem("transactions", JSON.stringify(updatedTransactions));
-
-                        // ATUALIZA SALDO DA CONTA
-                        const storedAccounts = await AsyncStorage.getItem("accounts");
-                        const accounts = storedAccounts ? JSON.parse(storedAccounts) : [];
-
-                        const updatedAccounts = accounts.map((acc: any) => {
-                            let newBalance = acc.balance ?? 0;
-
-                            // RECEITA
-                            if (
-                                transactionToDelete.type === "receita" &&
-                                acc.id === transactionToDelete.accountId
-                            ) {
-                                newBalance -= transactionToDelete.value;
-                            }
-
-                            // DESPESA
-                            if (
-                                transactionToDelete.type === "despesa" &&
-                                acc.id === transactionToDelete.accountId
-                            ) {
-                                newBalance += transactionToDelete.value;
-                            }
-
-                            // TRANSFERÊNCIA
-                            if (transactionToDelete.type === "transferencia") {
-
-                                // Conta ORIGEM → devolve dinheiro
-                                if (acc.id === transactionToDelete.accountId) {
-                                    newBalance += transactionToDelete.value;
-                                }
-
-                                // Conta DESTINO → remove dinheiro recebido
-                                if (acc.id === transactionToDelete.toAccountId) {
-                                    newBalance -= transactionToDelete.value;
-                                }
-                            }
-
-                            return {
-                                ...acc,
-                                balance: newBalance
-                            };
-                        });
-
-
-                        await AsyncStorage.setItem("accounts", JSON.stringify(updatedAccounts));
-
-                        loadTransactions();
-                        refresh();
-                    },
-
+                    onPress: () => deleteTransaction(id),
                 },
             ]
         );
     };
+
+
+    // Função para deletar transação
+    const deleteTransaction = async (id: string) => {
+        try {
+
+            const transactions = await getTransactions();
+            const transaction = transactions.find(t => t.id === id);
+
+            if (!transaction) return;
+
+            const updatedTransactions = transactions.filter(t => t.id !== id);
+            await saveTransactions(updatedTransactions);
+
+            await revertAccountBalance(transaction);
+
+            loadTransactions();
+            refresh();
+
+        } catch (error) {
+            console.log("Erro ao deletar transação:", error);
+        }
+    };
+
+    // Atualiza os valores após exclusão de transação
+    const revertAccountBalance = async (transaction: Transaction) => {
+        const accounts = await getAccounts();
+
+        const updatedAccounts = accounts.map(acc => {
+            let balance = acc.balance ?? 0;
+
+            if (transaction.type === "receita" && acc.id === transaction.accountId) {
+                balance -= transaction.value;
+            }
+
+            if (transaction.type === "despesa" && acc.id === transaction.accountId) {
+                balance += transaction.value;
+            }
+
+            if (transaction.type === "transferencia") {
+                if (acc.id === transaction.accountId) {
+                    balance += transaction.value;
+                }
+
+                if (acc.id === transaction.toAccountId) {
+                    balance -= transaction.value;
+                }
+            }
+
+            return { ...acc, balance };
+        });
+
+        await saveAccounts(updatedAccounts);
+    };
+
 
     // Define formato de data
     const formatDate = (date: string) =>
@@ -141,6 +151,8 @@ export default function transactions() {
             year: "numeric",
         });
 
+
+    // Render
     return (
         <View style={globalStyles.container}>
             <Header showIndexContent={false} showTabsContent={true} TabTitle="Transações" />
@@ -240,10 +252,6 @@ export default function transactions() {
                         </Text>
 
                         <View style={styles.actions}>
-                            <Pressable>
-                                <MaterialIcons name="edit" size={22} color="#2563EB" />
-                            </Pressable>
-
                             <Pressable onPress={() => handleDelete(item.id)}>
                                 <MaterialIcons name="delete" size={22} color="#DC2626" />
                             </Pressable>
@@ -254,7 +262,6 @@ export default function transactions() {
         </View>
     );
 }
-
 
 const styles = StyleSheet.create({
     tabsContainer: {
@@ -304,8 +311,8 @@ const styles = StyleSheet.create({
     },
 
     iconTransfer: {
-    backgroundColor: "#FEF3C7",
-},
+        backgroundColor: "#FEF3C7",
+    },
 
 
     infoContainer: {

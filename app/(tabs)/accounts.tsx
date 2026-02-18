@@ -1,8 +1,8 @@
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useCallback, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from "react-native";
 import DraggableFlatList from "react-native-draggable-flatlist";
 import { useTransactionsContext } from "../../context/TransactionContext";
 import { globalStyles } from "../../styles/global";
@@ -56,7 +56,6 @@ const accounts = () => {
   );
 
 
-
   // Render
   return (
     <View
@@ -64,7 +63,6 @@ const accounts = () => {
     >
 
       <Header showIndexContent={false} showTabsContent={true} TabTitle="Editar suas contas" />
-
 
       <View style={[globalStyles.content, { flex: 1 }]}>
         <View style={[globalStyles.contentbox, { marginTop: 20 }]}>
@@ -129,7 +127,6 @@ const accounts = () => {
         </View>
       </View>
 
-
       <AccountAddModal
         visible={accountModalVisible}
         onClose={() => {
@@ -147,8 +144,6 @@ const accounts = () => {
     </View>
   );
 }
-
-export default accounts
 
 const styles = StyleSheet.create({
   addbutton: {
@@ -173,3 +168,5 @@ const styles = StyleSheet.create({
     paddingVertical: 10
   }
 })
+
+export default accounts

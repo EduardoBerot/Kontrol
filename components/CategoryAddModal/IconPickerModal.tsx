@@ -1,7 +1,8 @@
+import { FlatList, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import globalStyles from "@/styles/global";
 import { IconName, Icons } from "@/utils/Icons";
 import { MaterialIcons } from "@expo/vector-icons";
-import { FlatList, Modal, Pressable, StyleSheet, Text, View } from "react-native";
+
 
 // Tipagem
 type Props = {
@@ -13,6 +14,7 @@ type Props = {
 
 const IconPickerModal = ({ visible, color, onClose, onSelect }: Props) => {
 
+  // Render
   return (
     <Modal
       visible={visible}
@@ -60,8 +62,6 @@ const IconPickerModal = ({ visible, color, onClose, onSelect }: Props) => {
   );
 }
 
-export default IconPickerModal
-
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
@@ -75,11 +75,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     width: "80%",
-    maxHeight: "60%", // 🔹 controla o tamanho do modal
+    maxHeight: "60%",
   },
 
   list: {
-    maxHeight: "100%", // 🔹 FlatList respeita o container
+    maxHeight: "100%",
   },
 
   listContent: {
@@ -92,3 +92,5 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
+
+export default IconPickerModal

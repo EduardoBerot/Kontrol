@@ -1,7 +1,8 @@
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { Account } from "@/types/Account";
 import BanksLogo from "@/utils/BanksLogo";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+
 
 
 // Tipagem
@@ -10,9 +11,9 @@ type Props = {
     onPress: () => void;
 };
 
-
-
 const AccountSelectInput = ({ Account, onPress }: Props) => {
+
+    // Render
     return (
 
         <Pressable style={styles.input} onPress={onPress}>
@@ -37,8 +38,6 @@ const AccountSelectInput = ({ Account, onPress }: Props) => {
         </Pressable>
     );
 };
-
-export default AccountSelectInput;
 
 const styles = StyleSheet.create({
     input: {
@@ -78,3 +77,5 @@ const styles = StyleSheet.create({
         padding: 10
     },
 });
+
+export default AccountSelectInput;

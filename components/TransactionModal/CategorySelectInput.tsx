@@ -1,6 +1,6 @@
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Category } from "@/types/Category";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Pressable, StyleSheet, Text, View } from "react-native";
 
 
 // Tipagem
@@ -10,16 +10,16 @@ type Props = {
   onPress: () => void;
 };
 
-
-// Constante de renderização condicional
+// Label condicional ao tipo
 const inputLabel = {
   despesa: "Selecione a Categoria",
   receita: "Selecione a Natureza da Receita",
 }
 
 const CategorySelectInput = ({ type, category, onPress }: Props) => {
-  return (
 
+  // Render
+  return (
     <Pressable style={styles.input} onPress={onPress}>
       {category ? (
         <View style={styles.left}>
@@ -43,8 +43,6 @@ const CategorySelectInput = ({ type, category, onPress }: Props) => {
     </Pressable>
   );
 };
-
-export default CategorySelectInput;
 
 const styles = StyleSheet.create({
   input: {
@@ -77,3 +75,5 @@ const styles = StyleSheet.create({
     color: "#111827",
   },
 });
+
+export default CategorySelectInput;

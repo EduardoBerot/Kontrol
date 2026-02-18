@@ -8,10 +8,10 @@ type Props = {
 };
 
 const ColorSelectInput = ({ value, onPress }: Props) => {
+
+  // Render
   return (
-
     <Pressable style={styles.input} onPress={onPress}>
-
       <View style={styles.left}>
         <View
           style={[
@@ -21,15 +21,10 @@ const ColorSelectInput = ({ value, onPress }: Props) => {
         />
         <Text>{value ?? "Selecionar cor"}</Text>
       </View>
-
       <MaterialIcons name="color-lens" size={22} />
-      
     </Pressable>
-
   );
 }
-
-export default ColorSelectInput
 
 const styles = StyleSheet.create({
   input: {
@@ -54,3 +49,5 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
   },
 });
+
+export default ColorSelectInput

@@ -1,14 +1,13 @@
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Account } from "@/types/Account";
 import BanksLogo from "@/utils/BanksLogo";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import globalStyles from "@/styles/global";
 import formatCurrency from "@/utils/FormatCurrency";
 
 
-
-const AccountRender = ({ id, name, bank, balance, onEdit }: Account) => {
-
+const AccountRender = ({ name, bank, balance, onEdit }: Account) => {
+  
   // Render
   return (
 
@@ -33,8 +32,6 @@ const AccountRender = ({ id, name, bank, balance, onEdit }: Account) => {
     </View>
   );
 };
-
-export default AccountRender;
 
 const styles = StyleSheet.create({
   accountItem: {
@@ -61,3 +58,5 @@ const styles = StyleSheet.create({
     color: "#666",
   },
 });
+
+export default AccountRender;

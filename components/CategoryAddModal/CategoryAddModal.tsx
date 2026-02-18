@@ -1,16 +1,9 @@
+import { Animated, Modal, Pressable, StyleSheet, Text, View, Alert } from "react-native";
+import { useEffect, useRef, useState } from "react";
 import { Category } from "@/types/Category";
 import { IconName } from "@/utils/Icons";
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useRef, useState } from "react";
-import {
-  Animated,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
 import { TextInput } from "react-native-gesture-handler";
 import ColorPickerModal from "./ColorPickerModal";
 import ColorSelectInput from "./ColorSelectInput";
@@ -18,8 +11,7 @@ import IconPickerModal from "./IconPickerModal";
 import IconSelectInput from "./IconSelectInput";
 
 
-
-
+// Tipagem
 type ModalProps = {
   visible: boolean;
   category: Category | null;
@@ -27,24 +19,20 @@ type ModalProps = {
   onSaved: () => void;
 };
 
-
 const CategoryAddModal = ({ visible, category, onClose, onSaved, }: ModalProps) => {
 
   // Hooks
   const [name, setName] = useState("");
-  const [budget, setBudget] = useState("");
+  const [budget, setBudget] = useState<number>(0);
   const [icon, setIcon] = useState<IconName | undefined>();
   const [color, setColor] = useState("#9CA3AF");
-
   const [iconModalOpen, setIconModalOpen] = useState(false);
   const [colorModalOpen, setColorModalOpen] = useState(false);
-
   const translateY = useRef(new Animated.Value(300)).current;
-
   const isEditing = !!category;
 
-  /* ===== ANIMAÇÃO DE ABERTURA ===== */
 
+  // Animação modal
   useEffect(() => {
     Animated.timing(translateY, {
       toValue: visible ? 0 : 300,
@@ -60,24 +48,45 @@ const CategoryAddModal = ({ visible, category, onClose, onSaved, }: ModalProps) 
       setName(category.name);
       setIcon(category.icon);
       setColor(category.color);
-      setBudget(category.limit ?? "");
+      setBudget(category.limit ?? 0);
     } else {
       resetFields();
     }
   }, [category, visible]);
 
-  // Resetar camport
+  // Resetar campos
   const resetFields = () => {
     setName("");
     setIcon(undefined);
     setColor("#9CA3AF");
-    setBudget("");
+    setBudget(0);
   };
 
 
   // Salvar ou editar no Async Storage
   const saveOrUpdateCategory = async () => {
     try {
+
+      // Validação nome
+      if (!name.trim()) {
+        Alert.alert(
+          "Categoria inválida",
+          "A categoria precisa ter um nome antes de salvar.",
+          [{ text: "OK" }]
+        );
+        return;
+      }
+
+      // ✅ Validação ícone
+      if (!icon) {
+        Alert.alert(
+          "Ícone obrigatório",
+          "Selecione um ícone para a categoria.",
+          [{ text: "OK" }]
+        );
+        return;
+      }
+
       const value = await AsyncStorage.getItem("categories");
       const current: Category[] = value ? JSON.parse(value) : [];
 
@@ -89,7 +98,7 @@ const CategoryAddModal = ({ visible, category, onClose, onSaved, }: ModalProps) 
             return {
               ...item,
               name,
-              icon: icon!,
+              icon,
               color,
               limit: budget,
             };
@@ -100,14 +109,14 @@ const CategoryAddModal = ({ visible, category, onClose, onSaved, }: ModalProps) 
         const newCategory: Category = {
           id: Date.now(),
           name,
-          icon: icon!,
+          icon,
           color,
           limit: budget,
-          spent: "",
+          spent: 0,
         };
+
         updated = [...current, newCategory];
       }
-
 
       await AsyncStorage.setItem("categories", JSON.stringify(updated));
       resetFields();
@@ -119,28 +128,26 @@ const CategoryAddModal = ({ visible, category, onClose, onSaved, }: ModalProps) 
     }
   };
 
+
+
   // Deletar categoria
   const handleDeleteCategory = async () => {
     if (!category) return;
-
     try {
       const value = await AsyncStorage.getItem("categories");
       const current: Category[] = value ? JSON.parse(value) : [];
-
       const updated = current.filter(item => item.id !== category.id);
-
       await AsyncStorage.setItem("categories", JSON.stringify(updated));
-
       resetFields();
       onSaved();
       onClose();
-
     } catch (error) {
       console.log("Erro ao excluir categoria:", error);
     }
   };
 
 
+  // Render
   return (
     <Modal transparent visible={visible} onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={onClose}>
@@ -165,10 +172,11 @@ const CategoryAddModal = ({ visible, category, onClose, onSaved, }: ModalProps) 
               <Text style={styles.label}>Nome</Text>
               <TextInput
                 value={name}
-                onChangeText={setName}
+                onChangeText={(text) => setName(text.replace(/[^a-zA-ZÀ-ÿ\s]/g, ""))}
                 placeholder="Ex: Alimentação"
                 style={styles.input}
               />
+
             </View>
 
             <View style={styles.field}>
@@ -203,11 +211,16 @@ const CategoryAddModal = ({ visible, category, onClose, onSaved, }: ModalProps) 
             <View style={styles.field}>
               <Text style={styles.label}>Orçamento</Text>
               <TextInput
-                value={budget}
-                onChangeText={setBudget}
-                placeholder="Ex: 1.000 R$"
+                keyboardType="numeric"
+                value={budget.toString()}
+                onChangeText={(text) => {
+                  const clean = text.replace(/[^\d.-]/g, "");
+                  setBudget(Number(clean) || 0);
+                }}
+                placeholder="Ex: 1000"
                 style={styles.input}
               />
+
             </View>
 
             <Pressable style={styles.button} onPress={saveOrUpdateCategory}>
@@ -234,8 +247,6 @@ const CategoryAddModal = ({ visible, category, onClose, onSaved, }: ModalProps) 
     </Modal>
   );
 }
-
-export default CategoryAddModal
 
 const styles = StyleSheet.create({
   overlay: {
@@ -297,3 +308,5 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 });
+
+export default CategoryAddModal

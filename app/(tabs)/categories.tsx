@@ -1,23 +1,15 @@
+import { Pressable, StyleSheet, Text, View, } from "react-native";
+import { useCallback, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useState } from 'react';
-import { Pressable, StyleSheet, Text, View, } from "react-native";
 import DraggableFlatList from "react-native-draggable-flatlist";
 import { globalStyles } from "../../styles/global";
 import CategoryAddModal from "../../components/CategoryAddModal/CategoryAddModal";
 import CategoryRender from "@/components/CategoryRender";
 import Header from "@/components/Header";
+import { Category } from "@/types/Category";
 
-// Tipagem
-type Category = {
-  id: number;
-  name: string;
-  icon: any;
-  color: string;
-  limit: string;
-  spent: string;
-};
 
 const categories = () => {
   // Hooks
@@ -121,7 +113,6 @@ const categories = () => {
         </View>
       </View>
 
-
       <CategoryAddModal
         visible={modalVisible}
         onClose={() => {
@@ -138,8 +129,6 @@ const categories = () => {
     </View>
   );
 }
-
-export default categories
 
 const styles = StyleSheet.create({
   addbutton: {
@@ -164,3 +153,5 @@ const styles = StyleSheet.create({
     paddingVertical: 10
   }
 })
+
+export default categories

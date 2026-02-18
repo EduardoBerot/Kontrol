@@ -1,7 +1,7 @@
+import { FlatList, Image, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import globalStyles from "@/styles/global";
 import BanksLogo, { BankKey } from "@/utils/BanksLogo";
 import { MaterialIcons } from "@expo/vector-icons";
-import { FlatList, Image, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
 
 // Tipagem
@@ -64,8 +64,6 @@ const AccountIconPickerModal = ({ visible, onClose, onSelect }: Props) => {
   );
 };
 
-export default AccountIconPickerModal;
-
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
@@ -106,3 +104,5 @@ const styles = StyleSheet.create({
     padding: 20
   },
 });
+
+export default AccountIconPickerModal;

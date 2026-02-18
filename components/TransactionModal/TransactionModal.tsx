@@ -1,49 +1,28 @@
+import { Animated, Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
 import { Category } from "@/types/Category";
 import { Account } from "@/types/Account";
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { useEffect, useRef, useState } from "react";
-import {
-  Animated,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
 import { TextInput } from "react-native-gesture-handler";
 import AccountSelectInput from "./AccountSelectInput";
 import AccountSelectModal from "./AccountSelectModal";
 import CategorySelectInput from "./CategorySelectInput";
 import CategorySelectModal from "./CategorySelectModal";
+import { Transaction } from "@/types/Transaction";
 
 // Tipagem
 type ModalProps = {
   visible: boolean;
   type: "despesa" | "receita" | "transferencia" | null;
   onClose: () => void;
-  onSaved?: () => void; // 🔹 ALTERADO (opcional)
+  onSaved?: () => void;
 };
 
-export type Transaction = {
-  id: string;
-  type: "receita" | "despesa" | "transferencia";
-  value: number;
-  date: string;
-  category: string;
-  accountId: string;
-  toAccountId?: string;
-};
-
-
-
-const TransactionModal = ({
-  visible,
-  onClose,
-  onSaved,
-  type,
-}: ModalProps) => {
+const TransactionModal = ({ visible, onClose, onSaved, type }: ModalProps) => {
+  
+  // Hooks
   const [account, setAccount] = useState<Account | undefined>();
   const [category, setCategory] = useState<Category | undefined>();
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
@@ -54,23 +33,10 @@ const TransactionModal = ({
   const [expenseValue, setExpenseValue] = useState(0);
   const [incomeValue, setIncomeValue] = useState(0);
   const [transferValue, setTransferValue] = useState(0);
-
   const [toAccount, setToAccount] = useState<Account | undefined>();
   const [toAccountModalOpen, setToAccountModalOpen] = useState(false);
 
-
-  const buttonLabel = {
-    despesa: "Salvar Despesa",
-    receita: "Salvar Receita",
-    transferencia: "Salvar Transferência",
-  };
-
-  const modalTitle = {
-    despesa: "Adicionar despesa",
-    receita: "Adicionar receita",
-    transferencia: "Adicionar transferência",
-  };
-
+  // Captura o valor do tipo de transação
   const getCurrentValue = () => {
     if (type === "despesa") return expenseValue;
     if (type === "receita") return incomeValue;
@@ -78,38 +44,37 @@ const TransactionModal = ({
     return 0;
   };
 
+  // Salva os dados no Async Storage
   const saveData = async () => {
     try {
+      if (!type || !account) return;
       const value = getCurrentValue();
-
+      const transactionDate = (date ?? new Date()).toISOString();
+      const categoryName = category?.name ?? "Transferência";
       const newTransaction: Transaction = {
         id: Date.now().toString(),
-        type: type!,
-        date: (date || new Date()).toISOString(),
-        value: getCurrentValue(),
-        category: category?.name || "Transferência",
-        accountId: account!.id,
+        type,
+        date: transactionDate,
+        value,
+        category: categoryName,
+        accountId: account.id,
         toAccountId: toAccount?.id,
       };
-
-
-
       await updateAccountBalance(value);
-
-      const data = await AsyncStorage.getItem("transactions");
-      const transactions: Transaction[] = data ? JSON.parse(data) : [];
-
+      const storedData = await AsyncStorage.getItem("transactions");
+      const transactions: Transaction[] = storedData ? JSON.parse(storedData) : [];
+      const updatedTransactions = [...transactions, newTransaction];
       await AsyncStorage.setItem(
         "transactions",
-        JSON.stringify([...transactions, newTransaction])
+        JSON.stringify(updatedTransactions)
       );
-
     } catch (error) {
       console.log("Erro ao salvar:", error);
     }
   };
 
 
+  // Função de adicionar transação
   const addTransaction = async () => {
     await saveData();
     onSaved?.();
@@ -123,34 +88,32 @@ const TransactionModal = ({
     }
   };
 
-
+  // Atualiza o saldo das contas 
   const updateAccountBalance = async (transactionValue: number) => {
-    if (!account) return;
+    if (!account || !type) return;
 
     try {
       const data = await AsyncStorage.getItem("accounts");
       const accounts: Account[] = data ? JSON.parse(data) : [];
 
-      const updatedAccounts = accounts.map((acc: Account) => {
-
+      const updatedAccounts = accounts.map(acc => {
         let newBalance = acc.balance ?? 0;
 
-        // Conta origem
-        if (acc.id === account.id) {
-          if (type === "despesa") newBalance -= transactionValue;
+        const isSourceAccount = acc.id === account.id;
+        const isDestinationAccount = acc.id === toAccount?.id;
+
+        // Ajuste conta origem
+        if (isSourceAccount) {
           if (type === "receita") newBalance += transactionValue;
-          if (type === "transferencia") newBalance -= transactionValue;
+          else newBalance -= transactionValue; // despesa + transferencia
         }
 
-        // Conta destino
-        if (type === "transferencia" && acc.id === toAccount?.id) {
+        // Ajuste conta destino (transferência)
+        if (type === "transferencia" && isDestinationAccount) {
           newBalance += transactionValue;
         }
 
-        return {
-          ...acc,
-          balance: newBalance
-        };
+        return { ...acc, balance: newBalance };
       });
 
       await AsyncStorage.setItem("accounts", JSON.stringify(updatedAccounts));
@@ -161,7 +124,20 @@ const TransactionModal = ({
   };
 
 
+  // Label e Titulo condicionados ao tipo de transação
+  const buttonLabel = {
+    despesa: "Salvar Despesa",
+    receita: "Salvar Receita",
+    transferencia: "Salvar Transferência",
+  };
 
+  const modalTitle = {
+    despesa: "Adicionar despesa",
+    receita: "Adicionar receita",
+    transferencia: "Adicionar transferência",
+  };
+
+  // Animações do modal
   useEffect(() => {
     Animated.timing(translateY, {
       toValue: visible ? 0 : 300,
@@ -170,6 +146,8 @@ const TransactionModal = ({
     }).start();
   }, [visible]);
 
+
+  // Reseta os inputs
   useEffect(() => {
     if (!visible) {
       setDate(new Date());
@@ -184,6 +162,8 @@ const TransactionModal = ({
     }
   }, [visible]);
 
+
+  // Render
   return (
     <Modal transparent visible={visible} onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={onClose}>
@@ -319,8 +299,6 @@ const TransactionModal = ({
   );
 };
 
-export default TransactionModal;
-
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
@@ -373,3 +351,5 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 });
+
+export default TransactionModal;

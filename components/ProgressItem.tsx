@@ -1,6 +1,6 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from "react-native";
 import * as Progress from 'react-native-progress';
+import { MaterialIcons } from '@expo/vector-icons';
 import globalStyles from '@/styles/global';
 import formatCurrency from '@/utils/FormatCurrency';
 
@@ -20,8 +20,10 @@ const getProgressColor = (progress: number) => {
     return "#ef4444";
 };
 
+
 const ProgressItem = ({ icon, label, spent, limit, color }: ProgressItemProps) => {
 
+    // Transforma o numero formatado BR para numero JSON
     const normalizeNumber = (value: string) =>
         Number(
             value
@@ -29,18 +31,18 @@ const ProgressItem = ({ icon, label, spent, limit, color }: ProgressItemProps) =
                 .replace(',', '.')
                 .replace(/[^\d.-]/g, '')
         );
-
     const spentValue = normalizeNumber(spent);
     const limitValue = normalizeNumber(limit);
 
+    // Calculos de progesso no orçamento
     const progress = limitValue > 0 ? spentValue / limitValue : 0;
     const percentSpent = Math.min(progress * 100, 100);
     const remainingValue = limitValue - spentValue;
 
+    // Render
     return (
         <View style={[styles.card]}>
 
-            {/* Header */}
             <View style={[globalStyles.row, globalStyles.spacebetween, styles.header]}>
                 <View style={[globalStyles.row, styles.left]}>
                     <View style={[styles.iconBox, { backgroundColor: `${color}20` }]}>
@@ -54,7 +56,6 @@ const ProgressItem = ({ icon, label, spent, limit, color }: ProgressItemProps) =
                 </Text>
             </View>
 
-            {/* Progress bar */}
             <View style={[globalStyles.itemscenter, globalStyles.row]}>
                 <Progress.Bar
                     progress={progress}
@@ -69,7 +70,6 @@ const ProgressItem = ({ icon, label, spent, limit, color }: ProgressItemProps) =
                 />
             </View>
 
-            {/* Footer */}
             <View style={[globalStyles.row, globalStyles.spacebetween, styles.footer]}>
                 <Text style={styles.remaining}>
                     Restam: {formatCurrency(remainingValue)}
@@ -82,8 +82,6 @@ const ProgressItem = ({ icon, label, spent, limit, color }: ProgressItemProps) =
         </View>
     );
 };
-
-export default ProgressItem;
 
 const styles = StyleSheet.create({
     card: {
@@ -143,3 +141,5 @@ const styles = StyleSheet.create({
         color: "#374151"
     }
 });
+
+export default ProgressItem;

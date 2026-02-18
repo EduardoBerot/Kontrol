@@ -1,14 +1,14 @@
+import { Animated, Modal, Pressable, StyleSheet, Text, TextInput, View, Alert } from "react-native";
+import { useEffect, useRef, useState } from "react";
 import { Account } from "@/types/Account";
 import { BankKey } from "@/utils/BanksLogo";
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useRef, useState } from "react";
-import { Animated, Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import AccountIconPickerModal from "./AccountIconPickerModal";
 import AccountIconSelectInput from "./AccountIconSelectInput";
 
 
-
+// Tipagem
 type ModalProps = {
   visible: boolean;
   account: Account | null;
@@ -25,10 +25,9 @@ const AccountAddModal = ({ visible, account, onClose, onSaved }: ModalProps) => 
   const [pickerOpen, setPickerOpen] = useState(false);
   const translateY = useRef(new Animated.Value(300)).current;
 
-
-
   const isEditing = !!account;
 
+  // Animação do modal
   useEffect(() => {
     Animated.timing(translateY, {
       toValue: visible ? 0 : 300,
@@ -46,6 +45,7 @@ const AccountAddModal = ({ visible, account, onClose, onSaved }: ModalProps) => 
     }
   }, [account, visible]);
 
+  // Resetar inputs ao fechar modal
   const resetFields = () => {
     setName("");
     setBank(undefined);
@@ -55,6 +55,24 @@ const AccountAddModal = ({ visible, account, onClose, onSaved }: ModalProps) => 
   // Salvar ou atualizar conta
   const saveOrUpdateAccount = async () => {
     try {
+      //  Validação nome vazio
+      if (!name.trim()) {
+        Alert.alert(
+          "Campo obrigatório",
+          "A conta precisa ter um nome."
+        );
+        return;
+      }
+
+      // Validação banco não selecionado
+      if (!bank) {
+        Alert.alert(
+          "Campo obrigatório",
+          "Selecione um icone para a conta."
+        );
+        return;
+      }
+
       const value = await AsyncStorage.getItem("accounts");
       const current: Account[] = value ? JSON.parse(value) : [];
 
@@ -63,14 +81,14 @@ const AccountAddModal = ({ visible, account, onClose, onSaved }: ModalProps) => 
       if (account) {
         updated = current.map(item =>
           item.id === account.id
-            ? { ...item, name, bank: bank! }
+            ? { ...item, name, bank }
             : item
         );
       } else {
         const newAccount: Account = {
           id: Date.now().toString(),
           name,
-          bank: bank!,
+          bank,
           balance: 0,
         };
 
@@ -81,6 +99,7 @@ const AccountAddModal = ({ visible, account, onClose, onSaved }: ModalProps) => 
       resetFields();
       onSaved();
       onClose();
+
     } catch (error) {
       console.log("Erro ao salvar conta:", error);
     }
@@ -106,7 +125,7 @@ const AccountAddModal = ({ visible, account, onClose, onSaved }: ModalProps) => 
     }
   };
 
-
+  // Render
   return (
     <Modal transparent visible={visible} onRequestClose={onClose}>
 
@@ -132,7 +151,7 @@ const AccountAddModal = ({ visible, account, onClose, onSaved }: ModalProps) => 
               <Text style={styles.label}>Nome</Text>
               <TextInput
                 value={name}
-                onChangeText={setName}
+                onChangeText={(text) => setName(text.replace(/[^a-zA-ZÀ-ÿ\s]/g, ""))}
                 placeholder="Ex: Conta principal"
                 style={styles.input}
               />
@@ -171,8 +190,6 @@ const AccountAddModal = ({ visible, account, onClose, onSaved }: ModalProps) => 
     </Modal>
   );
 };
-
-export default AccountAddModal;
 
 const styles = StyleSheet.create({
   overlay: {
@@ -234,3 +251,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 });
+
+
+export default AccountAddModal;
