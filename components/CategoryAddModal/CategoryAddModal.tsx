@@ -76,7 +76,11 @@ const CategoryAddModal = ({ visible, category, onClose, onSaved, }: ModalProps) 
       setName(category.name);
       setIcon(category.icon);
       setColor(category.color);
-      setBudget(category.limit ?? 0);
+
+      const value = category.limit ?? 0;
+
+      setBudget(value);
+      setDisplayBudget(formatCurrency(value)); // 👈 FALTAVA ISSO
     } else {
       resetFields();
     }
@@ -245,10 +249,6 @@ const CategoryAddModal = ({ visible, category, onClose, onSaved, }: ModalProps) 
               keyboardType="numeric"
               value={displayBudget}
               style={styles.input}
-              selection={{
-                start: displayBudget.length,
-                end: displayBudget.length,
-              }}
               onChangeText={(text) => {
                 const numeric = text.replace(/\D/g, "");
                 const cents = Number(numeric || "0");
@@ -321,14 +321,14 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
 
-input: {
-  height: 48,
-  borderWidth: 1,
-  borderColor: "#E5E7EB",
-  borderRadius: 10,
-  paddingHorizontal: 12,
-  color: "#111827"
-},
+  input: {
+    height: 48,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    color: "#111827"
+  },
 
   button: {
     height: 48,
