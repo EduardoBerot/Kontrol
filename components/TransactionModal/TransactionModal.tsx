@@ -1,16 +1,17 @@
-import { Animated, Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { Animated, Modal, Pressable, StyleSheet, Text, View, TextInput, Keyboard } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import { Category } from "@/types/Category";
 import { Account } from "@/types/Account";
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { TextInput } from "react-native-gesture-handler";
 import AccountSelectInput from "./AccountSelectInput";
 import AccountSelectModal from "./AccountSelectModal";
 import CategorySelectInput from "./CategorySelectInput";
 import CategorySelectModal from "./CategorySelectModal";
 import { Transaction } from "@/types/Transaction";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import formatCurrency from "@/utils/FormatCurrency";
 
 // Tipagem
 type ModalProps = {
@@ -21,7 +22,7 @@ type ModalProps = {
 };
 
 const TransactionModal = ({ visible, onClose, onSaved, type }: ModalProps) => {
-  
+
   // Hooks
   const [account, setAccount] = useState<Account | undefined>();
   const [category, setCategory] = useState<Category | undefined>();
@@ -35,6 +36,10 @@ const TransactionModal = ({ visible, onClose, onSaved, type }: ModalProps) => {
   const [transferValue, setTransferValue] = useState(0);
   const [toAccount, setToAccount] = useState<Account | undefined>();
   const [toAccountModalOpen, setToAccountModalOpen] = useState(false);
+  const [displayValue, setDisplayValue] = useState(formatCurrency(0));
+
+  const insets = useSafeAreaInsets();
+
 
   // Captura o valor do tipo de transação
   const getCurrentValue = () => {
@@ -146,6 +151,29 @@ const TransactionModal = ({ visible, onClose, onSaved, type }: ModalProps) => {
     }).start();
   }, [visible]);
 
+    useEffect(() => {
+    const show = Keyboard.addListener("keyboardDidShow", (e) => {
+      Animated.timing(translateY, {
+        toValue: -e.endCoordinates.height - 20,
+        duration: 150,
+        useNativeDriver: true,
+      }).start();
+    });
+
+    const hide = Keyboard.addListener("keyboardDidHide", () => {
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: true,
+      }).start();
+    });
+
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
+
 
   // Reseta os inputs
   useEffect(() => {
@@ -158,6 +186,7 @@ const TransactionModal = ({ visible, onClose, onSaved, type }: ModalProps) => {
       setIncomeValue(0);
       setTransferValue(0);
       setCategoryModalOpen(false);
+      setDisplayValue(formatCurrency(0))
 
     }
   }, [visible]);
@@ -165,6 +194,7 @@ const TransactionModal = ({ visible, onClose, onSaved, type }: ModalProps) => {
 
   // Render
   return (
+
     <Modal transparent visible={visible} onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={onClose}>
         <Pressable>
@@ -172,6 +202,7 @@ const TransactionModal = ({ visible, onClose, onSaved, type }: ModalProps) => {
             style={[
               styles.modal,
               {
+                paddingBottom: insets.bottom,
                 transform: [{ translateY }],
               },
             ]}
@@ -184,6 +215,33 @@ const TransactionModal = ({ visible, onClose, onSaved, type }: ModalProps) => {
                 <MaterialIcons name="close" size={22} />
               </Pressable>
             </View>
+
+
+            <View style={styles.field}>
+              <Text style={styles.label}>Valor</Text>
+              <TextInput
+                keyboardType="numeric"
+                value={displayValue}
+                style={styles.input}
+                selection={{
+                  start: displayValue.length,
+                  end: displayValue.length,
+                }}
+                onChangeText={(text) => {
+                  const numeric = text.replace(/\D/g, "");
+                  const cents = Number(numeric || "0");
+                  const value = cents / 100;
+
+                  setDisplayValue(formatCurrency(value));
+
+                  if (type === "despesa") setExpenseValue(value);
+                  else if (type === "receita") setIncomeValue(value);
+                  else setTransferValue(value);
+                }}
+              />
+              
+            </View>
+
 
             <View style={styles.field}>
               <Text style={styles.label}>Data</Text>
@@ -270,23 +328,6 @@ const TransactionModal = ({ visible, onClose, onSaved, type }: ModalProps) => {
               </View>
             )}
 
-            <View style={styles.field}>
-              <Text style={styles.label}>Valor</Text>
-              <TextInput
-                keyboardType="numeric"
-                placeholder="Ex: 1.000 R$"
-                style={styles.input}
-                onChangeText={(text) => {
-                  const value = Number(text.replace(",", "."));
-                  type === "despesa"
-                    ? setExpenseValue(value)
-                    : type === "receita"
-                      ? setIncomeValue(value)
-                      : setTransferValue(value);
-                }}
-              />
-            </View>
-
             <Pressable style={styles.button} onPress={addTransaction}>
               <Text style={styles.buttonText}>
                 {type ? buttonLabel[type] : ""}
@@ -335,6 +376,7 @@ const styles = StyleSheet.create({
     height: 48,
     borderWidth: 1,
     borderColor: "#E5E7EB",
+    color: "#000",
     borderRadius: 10,
     paddingHorizontal: 12,
   },

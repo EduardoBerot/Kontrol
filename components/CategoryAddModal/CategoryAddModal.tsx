@@ -1,4 +1,4 @@
-import { Animated, Modal, Pressable, StyleSheet, Text, View, Alert } from "react-native";
+import { Animated, Modal, Pressable, StyleSheet, Text, View, Alert, KeyboardAvoidingView, Platform, Keyboard } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import { Category } from "@/types/Category";
 import { IconName } from "@/utils/Icons";
@@ -9,6 +9,8 @@ import ColorPickerModal from "./ColorPickerModal";
 import ColorSelectInput from "./ColorSelectInput";
 import IconPickerModal from "./IconPickerModal";
 import IconSelectInput from "./IconSelectInput";
+import formatCurrency from "@/utils/FormatCurrency";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 
 // Tipagem
@@ -30,6 +32,9 @@ const CategoryAddModal = ({ visible, category, onClose, onSaved, }: ModalProps) 
   const [colorModalOpen, setColorModalOpen] = useState(false);
   const translateY = useRef(new Animated.Value(300)).current;
   const isEditing = !!category;
+  const insets = useSafeAreaInsets();
+  const [displayBudget, setDisplayBudget] = useState(formatCurrency(0));
+
 
 
   // Animação modal
@@ -40,6 +45,29 @@ const CategoryAddModal = ({ visible, category, onClose, onSaved, }: ModalProps) 
       useNativeDriver: true,
     }).start();
   }, [visible]);
+
+  useEffect(() => {
+    const show = Keyboard.addListener("keyboardDidShow", (e) => {
+      Animated.timing(translateY, {
+        toValue: -e.endCoordinates.height - 20,
+        duration: 150,
+        useNativeDriver: true,
+      }).start();
+    });
+
+    const hide = Keyboard.addListener("keyboardDidHide", () => {
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: true,
+      }).start();
+    });
+
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
 
 
   // Preencher campos ao editar
@@ -60,6 +88,7 @@ const CategoryAddModal = ({ visible, category, onClose, onSaved, }: ModalProps) 
     setIcon(undefined);
     setColor("#9CA3AF");
     setBudget(0);
+    setDisplayBudget(formatCurrency(0))
   };
 
 
@@ -77,7 +106,7 @@ const CategoryAddModal = ({ visible, category, onClose, onSaved, }: ModalProps) 
         return;
       }
 
-      // ✅ Validação ícone
+      // Validação ícone
       if (!icon) {
         Alert.alert(
           "Ícone obrigatório",
@@ -150,99 +179,104 @@ const CategoryAddModal = ({ visible, category, onClose, onSaved, }: ModalProps) 
   // Render
   return (
     <Modal transparent visible={visible} onRequestClose={onClose}>
+
       <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable>
-          <Animated.View
-            style={[
-              styles.modal,
-              { transform: [{ translateY }] },
-            ]}
-          >
+        <Animated.View
+          style={[
+            styles.modal,
+            {
+              paddingBottom: insets.bottom,
+              transform: [{ translateY }]
+            },
+          ]}
+        >
+          <View style={styles.header}>
+            <Text style={styles.title}>
+              {isEditing ? "Editar categoria" : "Adicionar categoria"}
+            </Text>
+            <Pressable onPress={onClose} hitSlop={8}>
+              <MaterialIcons name="close" size={22} />
+            </Pressable>
+          </View>
 
-            <View style={styles.header}>
-              <Text style={styles.title}>
-                {isEditing ? "Editar categoria" : "Adicionar categoria"}
-              </Text>
-              <Pressable onPress={onClose} hitSlop={8}>
-                <MaterialIcons name="close" size={22} />
-              </Pressable>
-            </View>
+          <View style={styles.field}>
+            <Text style={styles.label}>Nome</Text>
+            <TextInput
+              value={name}
+              onChangeText={(text) => setName(text.replace(/[^a-zA-ZÀ-ÿ\s]/g, ""))}
+              placeholder="Ex: Alimentação"
+              style={styles.input}
+            />
 
-            <View style={styles.field}>
-              <Text style={styles.label}>Nome</Text>
-              <TextInput
-                value={name}
-                onChangeText={(text) => setName(text.replace(/[^a-zA-ZÀ-ÿ\s]/g, ""))}
-                placeholder="Ex: Alimentação"
-                style={styles.input}
-              />
+          </View>
 
-            </View>
+          <View style={styles.field}>
+            <Text style={styles.label}>Ícone</Text>
+            <IconSelectInput
+              value={icon}
+              color={color}
+              onPress={() => setIconModalOpen(true)}
+            />
+            <IconPickerModal
+              visible={iconModalOpen}
+              color={color}
+              onClose={() => setIconModalOpen(false)}
+              onSelect={setIcon}
+            />
+          </View>
 
-            <View style={styles.field}>
-              <Text style={styles.label}>Ícone</Text>
-              <IconSelectInput
-                value={icon}
-                color={color}
-                onPress={() => setIconModalOpen(true)}
-              />
-              <IconPickerModal
-                visible={iconModalOpen}
-                color={color}
-                onClose={() => setIconModalOpen(false)}
-                onSelect={setIcon}
-              />
-            </View>
+          <View style={styles.field}>
+            <Text style={styles.label}>Cor</Text>
+            <ColorSelectInput
+              value={color}
+              onPress={() => setColorModalOpen(true)}
+            />
+            <ColorPickerModal
+              visible={colorModalOpen}
+              initialColor={color}
+              onClose={() => setColorModalOpen(false)}
+              onSelect={setColor}
+            />
+          </View>
 
-            <View style={styles.field}>
-              <Text style={styles.label}>Cor</Text>
-              <ColorSelectInput
-                value={color}
-                onPress={() => setColorModalOpen(true)}
-              />
-              <ColorPickerModal
-                visible={colorModalOpen}
-                initialColor={color}
-                onClose={() => setColorModalOpen(false)}
-                onSelect={setColor}
-              />
-            </View>
+          <View style={styles.field}>
+            <Text style={styles.label}>Orçamento</Text>
+            <TextInput
+              keyboardType="numeric"
+              value={displayBudget}
+              style={styles.input}
+              selection={{
+                start: displayBudget.length,
+                end: displayBudget.length,
+              }}
+              onChangeText={(text) => {
+                const numeric = text.replace(/\D/g, "");
+                const cents = Number(numeric || "0");
+                const value = cents / 100;
 
-            <View style={styles.field}>
-              <Text style={styles.label}>Orçamento</Text>
-              <TextInput
-                keyboardType="numeric"
-                value={budget.toString()}
-                onChangeText={(text) => {
-                  const clean = text.replace(/[^\d.-]/g, "");
-                  setBudget(Number(clean) || 0);
-                }}
-                placeholder="Ex: 1000"
-                style={styles.input}
-              />
+                setDisplayBudget(formatCurrency(value));
+                setBudget(value);
+              }}
+            />
+          </View>
 
-            </View>
+          <Pressable style={styles.button} onPress={saveOrUpdateCategory}>
+            <Text style={styles.buttonText}>
+              {category ? "Salvar alterações" : "Salvar categoria"}
+            </Text>
+          </Pressable>
 
-            <Pressable style={styles.button} onPress={saveOrUpdateCategory}>
+          {isEditing && (
+            <Pressable
+              style={[styles.button, { backgroundColor: "#EF4444" }]}
+              onPress={handleDeleteCategory}
+            >
               <Text style={styles.buttonText}>
-                {category ? "Salvar alterações" : "Salvar categoria"}
+                Excluir categoria
               </Text>
             </Pressable>
-
-            {isEditing && (
-              <Pressable
-                style={[styles.button, { backgroundColor: "#EF4444" }]}
-                onPress={handleDeleteCategory}
-              >
-                <Text style={styles.buttonText}>
-                  Excluir categoria
-                </Text>
-              </Pressable>
-            )}
-
-
-          </Animated.View>
-        </Pressable>
+          )}
+        </Animated.View>
       </Pressable>
     </Modal>
   );
@@ -257,7 +291,8 @@ const styles = StyleSheet.create({
 
   modal: {
     backgroundColor: "#FFF",
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 10,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     width: "100%",
@@ -286,13 +321,14 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
 
-  input: {
-    height: 48,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-    borderRadius: 10,
-    paddingHorizontal: 12,
-  },
+input: {
+  height: 48,
+  borderWidth: 1,
+  borderColor: "#E5E7EB",
+  borderRadius: 10,
+  paddingHorizontal: 12,
+  color: "#111827"
+},
 
   button: {
     height: 48,

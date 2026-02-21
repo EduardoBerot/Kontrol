@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useState, useEffect } from 'react';
-import { Modal, Text, StyleSheet, Pressable, View, FlatList } from "react-native";
+import { Modal, Text, StyleSheet, Pressable, View, FlatList, Image } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Transaction } from '@/types/Transaction';
 
@@ -81,7 +81,7 @@ const HeaderIndexContent = ({ month, year, onChangePeriod }: Props) => {
   // Render
   return (
     <>
-      <MaterialIcons name="person" size={30} color="#fff" />
+      <Image source={require("@/assets/Kontrol.png")} style={{ width: 45, height: 45 }}/>
 
       <Pressable
         onPress={() => setVisible(true)}
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
 
 
   monthSelected: {
-    backgroundColor: "#2563eb",
+    backgroundColor: "#3560e3",
   },
   monthTextSelected: {
     color: "#fff",

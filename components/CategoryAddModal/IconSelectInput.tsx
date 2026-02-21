@@ -9,7 +9,7 @@ type Props = {
 };
 
 const IconSelectInput = ({ value, color, onPress }: Props) => {
-    
+
     // Render
     return (
         <>
@@ -36,8 +36,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
-        marginBottom: 14,
-        marginTop: 8,
+        borderColor: "#E5E7EB",
     },
 
     placeholder: {

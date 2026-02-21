@@ -212,10 +212,10 @@ const Index = () => {
 
   // Render
   return (
-    <View style={{ flex: 1 }}>
+    <View style={[{ flex: 1 }, globalStyles.container]}>
       <StatusBar translucent backgroundColor="transparent" style="light" />
 
-      <ScrollView style={[globalStyles.container]}>
+      <ScrollView style={[]}>
 
         <Header
           showIndexContent={true}

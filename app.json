@@ -1,12 +1,18 @@
 {
   "expo": {
-    "name": "financa",
+    "name": "Kontrol",
     "slug": "financa",
     "version": "1.0.0",
     "orientation": "portrait",
     "scheme": "financa",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "icon": "./assets/Kontrol.png",
+    "splash": {
+      "image": "./assets/Kontrol.png",
+      "backgroundColor": "#3560e3",
+      "resizeMode": "contain"
+    },
     "ios": {
       "supportsTablet": true
     },
@@ -14,9 +20,10 @@
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE"
       },
+      "softwareKeyboardLayoutMode": "resize",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.eduardoberot.financa"
+      "package": "com.eduardoberot.Kontrol"
     },
     "web": {
       "output": "static"

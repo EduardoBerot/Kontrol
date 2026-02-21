@@ -53,7 +53,7 @@ const Header = ({ showIndexContent = true, showTabsContent = false, TabTitle, mo
 const styles = StyleSheet.create({
     header: {
         height: 130,
-        backgroundColor: "rgba(37, 97, 236, 1)",
+        backgroundColor: "#3560e3",
         padding: 20,
     }
 });

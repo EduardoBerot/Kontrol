@@ -1,4 +1,4 @@
-import { Animated, Modal, Pressable, StyleSheet, Text, TextInput, View, Alert } from "react-native";
+import { Animated, Modal, Pressable, StyleSheet, Text, TextInput, View, Alert, Keyboard} from "react-native";
 import { useEffect, useRef, useState } from "react";
 import { Account } from "@/types/Account";
 import { BankKey } from "@/utils/BanksLogo";
@@ -6,6 +6,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import AccountIconPickerModal from "./AccountIconPickerModal";
 import AccountIconSelectInput from "./AccountIconSelectInput";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 
 
 // Tipagem
@@ -25,6 +27,10 @@ const AccountAddModal = ({ visible, account, onClose, onSaved }: ModalProps) => 
   const [pickerOpen, setPickerOpen] = useState(false);
   const translateY = useRef(new Animated.Value(300)).current;
 
+  const keyboardHeight = useRef(new Animated.Value(0)).current;
+
+
+  const insets = useSafeAreaInsets();
   const isEditing = !!account;
 
   // Animação do modal
@@ -35,6 +41,30 @@ const AccountAddModal = ({ visible, account, onClose, onSaved }: ModalProps) => 
       useNativeDriver: true,
     }).start();
   }, [visible]);
+
+    useEffect(() => {
+    const show = Keyboard.addListener("keyboardDidShow", (e) => {
+      Animated.timing(translateY, {
+        toValue: -e.endCoordinates.height - 20,
+        duration: 150,
+        useNativeDriver: true,
+      }).start();
+    });
+
+    const hide = Keyboard.addListener("keyboardDidHide", () => {
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: true,
+      }).start();
+    });
+
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
+
 
   useEffect(() => {
     if (account) {
@@ -50,6 +80,7 @@ const AccountAddModal = ({ visible, account, onClose, onSaved }: ModalProps) => 
     setName("");
     setBank(undefined);
   };
+ 
 
 
   // Salvar ou atualizar conta
@@ -128,14 +159,15 @@ const AccountAddModal = ({ visible, account, onClose, onSaved }: ModalProps) => 
   // Render
   return (
     <Modal transparent visible={visible} onRequestClose={onClose}>
-
       <Pressable style={styles.overlay} onPress={onClose}>
-
         <Pressable>
           <Animated.View
             style={[
               styles.modal,
-              { transform: [{ translateY }] },
+              {
+                paddingBottom: insets.bottom,
+                transform: [{ translateY }]
+              },
             ]}
           >
             <View style={styles.header}>
@@ -157,6 +189,7 @@ const AccountAddModal = ({ visible, account, onClose, onSaved }: ModalProps) => 
               />
             </View>
 
+            <Text style={styles.label}> Icone</Text>
             <AccountIconSelectInput
               value={bank}
               onPress={() => setPickerOpen(true)}
@@ -186,16 +219,17 @@ const AccountAddModal = ({ visible, account, onClose, onSaved }: ModalProps) => 
         </Pressable>
 
       </Pressable>
-
     </Modal>
+
+
   );
 };
 
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.45)",
     justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.45)",
   },
 
   modal: {
@@ -203,7 +237,6 @@ const styles = StyleSheet.create({
     padding: 20,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    width: "100%",
     elevation: 10,
   },
 

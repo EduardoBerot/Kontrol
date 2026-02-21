@@ -260,7 +260,7 @@ export default function transactions() {
                 )}
             />
         </View>
-    );
+    ); 
 }
 
 const styles = StyleSheet.create({
